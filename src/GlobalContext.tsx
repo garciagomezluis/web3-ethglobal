@@ -1,5 +1,14 @@
+/* eslint-disable import/no-cycle */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-unused-vars */
-import { FC, PropsWithChildren, createContext, useState } from 'react';
+import { FC, PropsWithChildren, createContext, useEffect, useState } from 'react';
+import {
+    checkAllImagesWithData,
+    checkAtLeastByLayer,
+    checkLayerCannotBeEmpty,
+    getAllCombiations,
+} from './Combinations';
 
 import { UpDownType, UsageType, getNewID } from './Commons';
 
@@ -33,6 +42,9 @@ type GlobalContextType = {
     setFileTraitValue: (id: string, file: File, value: string) => void;
     setFileUsageType: (id: string, file: File, value: UsageType) => void;
     setFileUsageValue: (id: string, file: File, value: number) => void;
+    calculateCombinations: () => void;
+    combinations: string[];
+    generalError: string;
 };
 
 const defaultContext: GlobalContextType = {
@@ -46,12 +58,22 @@ const defaultContext: GlobalContextType = {
     setFileTraitValue: () => {},
     setFileUsageType: () => {},
     setFileUsageValue: () => {},
+    calculateCombinations: () => {},
+    combinations: [],
+    generalError: '',
 };
 
 export const GlobalContext = createContext<GlobalContextType>(defaultContext);
 
 export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ children }) => {
     const [layers, setLayers] = useState<LayerType[]>([]);
+    const [combinations, setCombinations] = useState<string[]>([]);
+    const [generalError, setGeneralError] = useState('');
+
+    useEffect(() => {
+        setCombinations([]);
+        setGeneralError('');
+    }, [layers]);
 
     const createLayer = () => {
         setLayers((prev) => [
@@ -211,6 +233,55 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
         });
     };
 
+    const calculateCombinations = () => {
+        // validations
+        // layers cannot be empty
+
+        const failingEmpty = checkLayerCannotBeEmpty(layers);
+
+        if (failingEmpty.length !== 0) {
+            setGeneralError(
+                `Please, check layers ${failingEmpty.join(
+                    ', ',
+                )}: You need at least 1 image per layer.`,
+            );
+
+            return;
+        }
+
+        // all layers must have at least one image with "at least" option set
+
+        const failingAtLeast = checkAtLeastByLayer(layers);
+
+        if (failingAtLeast.length !== 0) {
+            setGeneralError(
+                `Please, check layers ${failingAtLeast.join(
+                    ', ',
+                )}: All layers must have at least 1 image with "At least" option set.`,
+            );
+
+            return;
+        }
+
+        // all images must have a trait description
+
+        const failingData = checkAllImagesWithData(layers);
+
+        if (Object.keys(failingData).length > 0) {
+            setGeneralError(
+                `Please, check layers ${Object.keys(failingData).join(
+                    ', ',
+                )}: All images must have the trait description set.`,
+            );
+
+            return;
+        }
+
+        const combs = getAllCombiations(layers);
+
+        setCombinations(combs);
+    };
+
     return (
         <GlobalContext.Provider
             value={{
@@ -224,6 +295,9 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 setFileTraitValue,
                 setFileUsageType,
                 setFileUsageValue,
+                calculateCombinations,
+                combinations,
+                generalError,
             }}
         >
             {children}

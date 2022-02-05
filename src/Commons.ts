@@ -49,3 +49,10 @@ export const validImageDimension = async (url: string) => {
 };
 export const filesToURL = (files: File[]) => files.map((file) => URL.createObjectURL(file));
 export const getNewID = () => Math.random().toString().substring(2);
+
+export function getRandomInt(min: number, max: number) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
