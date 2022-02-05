@@ -1,74 +1,43 @@
 /* eslint-disable no-restricted-syntax */
-import { useState } from 'react';
-import {
-    Accordion,
-    AccordionButton,
-    AccordionIcon,
-    AccordionItem,
-    AccordionPanel,
-    Button,
-    ChakraProvider,
-    Container,
-    Editable,
-    EditableInput,
-    EditablePreview,
-    HStack,
-} from '@chakra-ui/react';
+import { useContext } from 'react';
+import { Accordion, Button, Container, HStack } from '@chakra-ui/react';
 
-import { AiFillCloseCircle, AiFillPlusCircle } from 'react-icons/ai';
+import { AiFillPlusCircle } from 'react-icons/ai';
 
-import LayerGallery from './LayerGallery';
+import Layer from './Layer';
+import { GlobalContext, LayerType } from './GlobalContext';
 
 function App() {
-    const [layers, setLayers] = useState<number[]>([]);
+    const { getLayers, createLayer } = useContext(GlobalContext);
 
-    const addLayer = () => {
-        setLayers((prev) => [...prev, 1]);
-    };
+    const layers = getLayers();
 
     return (
-        <ChakraProvider>
-            <Container maxW="container.xl">
-                <Accordion>
-                    {layers.map((layer: number, i: number) => (
-                        <AccordionItem>
-                            <AccordionButton>
-                                <Editable defaultValue="Rename Layer" flex="1" textAlign="left">
-                                    <EditablePreview />
-                                    <EditableInput />
-                                </Editable>
-                                <AccordionIcon />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <HStack justify="flex-end" my="5">
-                                    <Button
-                                        colorScheme="pink"
-                                        leftIcon={<AiFillCloseCircle />}
-                                        variant="solid"
-                                        onClick={addLayer}
-                                    >
-                                        Remove
-                                    </Button>
-                                </HStack>
+        <Container maxW="container.xl">
+            <Accordion allowToggle>
+                {layers.map((layer: LayerType, i: number) => (
+                    <Layer
+                        key={layer.id}
+                        gallery={layer.gallery}
+                        id={layer.id}
+                        moveDownAllowed={i < layers.length - 1}
+                        moveUpAllowed={i > 0}
+                        name={layer.name}
+                    />
+                ))}
+            </Accordion>
 
-                                <LayerGallery />
-                            </AccordionPanel>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
-
-                <HStack my="5">
-                    <Button
-                        colorScheme="pink"
-                        leftIcon={<AiFillPlusCircle />}
-                        variant="solid"
-                        onClick={addLayer}
-                    >
-                        Add layer
-                    </Button>
-                </HStack>
-            </Container>
-        </ChakraProvider>
+            <HStack my="5">
+                <Button
+                    colorScheme="pink"
+                    leftIcon={<AiFillPlusCircle />}
+                    variant="solid"
+                    onClick={createLayer}
+                >
+                    Add layer
+                </Button>
+            </HStack>
+        </Container>
     );
 }
 
