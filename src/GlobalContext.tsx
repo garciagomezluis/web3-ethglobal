@@ -42,8 +42,8 @@ type GlobalContextType = {
     setFileTraitValue: (id: string, file: File, value: string) => void;
     setFileUsageType: (id: string, file: File, value: UsageType) => void;
     setFileUsageValue: (id: string, file: File, value: number) => void;
-    calculateCombinations: () => void;
-    combinations: string[];
+    calculateCombinations: () => boolean;
+    combinations: ImageViewerType[][];
     generalError: string;
 };
 
@@ -58,7 +58,7 @@ const defaultContext: GlobalContextType = {
     setFileTraitValue: () => {},
     setFileUsageType: () => {},
     setFileUsageValue: () => {},
-    calculateCombinations: () => {},
+    calculateCombinations: () => false,
     combinations: [],
     generalError: '',
 };
@@ -67,7 +67,7 @@ export const GlobalContext = createContext<GlobalContextType>(defaultContext);
 
 export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ children }) => {
     const [layers, setLayers] = useState<LayerType[]>([]);
-    const [combinations, setCombinations] = useState<string[]>([]);
+    const [combinations, setCombinations] = useState<ImageViewerType[][]>([]);
     const [generalError, setGeneralError] = useState('');
 
     useEffect(() => {
@@ -246,7 +246,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 )}: You need at least 1 image per layer.`,
             );
 
-            return;
+            return false;
         }
 
         // all layers must have at least one image with "at least" option set
@@ -260,7 +260,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 )}: All layers must have at least 1 image with "At least" option set.`,
             );
 
-            return;
+            return false;
         }
 
         // all images must have a trait description
@@ -274,12 +274,14 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 )}: All images must have the trait description set.`,
             );
 
-            return;
+            return false;
         }
 
         const combs = getAllCombiations(layers);
 
         setCombinations(combs);
+
+        return true;
     };
 
     return (

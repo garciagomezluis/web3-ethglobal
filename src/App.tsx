@@ -1,10 +1,23 @@
 /* eslint-disable no-restricted-syntax */
-import { Accordion, Button, Container, HStack, useToast } from '@chakra-ui/react';
+import {
+    Accordion,
+    Button,
+    Container,
+    Drawer,
+    DrawerBody,
+    DrawerContent,
+    DrawerHeader,
+    DrawerOverlay,
+    HStack,
+    useDisclosure,
+    useToast,
+} from '@chakra-ui/react';
 import { useContext, useEffect } from 'react';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
 
 import Layer from './Layer';
+import Preview from './Preview';
 import { GlobalContext, LayerType } from './GlobalContext';
 
 function App() {
@@ -15,12 +28,16 @@ function App() {
 
     const toast = useToast();
 
+    const { isOpen, onOpen, onClose } = useDisclosure();
+
     useEffect(() => {
         createLayer();
     }, []);
 
     const previewClick = () => {
-        calculateCombinations();
+        if (combinations.length !== 0 || calculateCombinations()) {
+            onOpen();
+        }
     };
 
     useEffect(() => {
@@ -39,6 +56,15 @@ function App() {
 
     return (
         <Container maxW="container.xl">
+            <Drawer isOpen={isOpen} size="md" onClose={onClose}>
+                <DrawerOverlay />
+                <DrawerContent>
+                    <DrawerHeader>Collection preview</DrawerHeader>
+                    <DrawerBody>
+                        <Preview />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
             <Accordion allowToggle>
                 {layers.map((layer: LayerType, i: number) => (
                     <Layer

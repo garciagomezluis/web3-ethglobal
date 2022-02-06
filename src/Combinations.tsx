@@ -125,7 +125,7 @@ export const getAllCombiations = (layers: LayerType[]) => {
         saveCombinationIfValid(map, combination, combinations);
     }
 
-    return combinations;
+    return getCombinationsData(combinations, layers);
 };
 
 const saveCombinationIfValid = (
@@ -157,4 +157,43 @@ const saveCombinationIfValid = (
     }
 
     return valid;
+};
+
+export const getTraitInsights = (combinations: string[], amountLayers: number) => {
+    return Array(amountLayers)
+        .fill('')
+        .map((_, i) => getLayerInsights(combinations, i));
+};
+
+const getLayerInsights = (combinations: string[], layerIndex: number) => {
+    const traitsUsages: any = {};
+
+    combinations.forEach((combination) => {
+        const traitIndex = combination[layerIndex];
+
+        traitsUsages[traitIndex] = traitsUsages[traitIndex] || 0;
+        traitsUsages[traitIndex]++;
+    });
+
+    for (const k in traitsUsages) {
+        traitsUsages[k] = (traitsUsages[k] * 100) / combinations.length;
+    }
+
+    return traitsUsages;
+};
+
+const getCombinationsData = (combinations: string[], layers: LayerType[]) => {
+    return combinations.map((c) => combinationToData(c, layers));
+};
+
+const combinationToData = (combination: string, layers: LayerType[]) => {
+    // if (combination.length !== layers.length) return;
+
+    const data = [];
+
+    for (let i = 0; i < layers.length; i++) {
+        data.push(layers[i].gallery.images[Number(combination[i])]);
+    }
+
+    return data;
 };
