@@ -98,23 +98,23 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
         }
     }, [error]);
 
-    useEffect(() => {
-        console.log(ipfsMeta, ipfsImages, account);
-    }, [ipfsImages, ipfsMeta, account]);
+    // useEffect(() => {
+    //     console.log(ipfsMeta, ipfsImages, account);
+    // }, [ipfsImages, ipfsMeta, account]);
 
     useEffect(() => {
         if (moralisFile !== null) {
             if (uploadingImage) {
                 setIpfsImages((prev) => [
                     ...prev,
-                    { _hash: moralisFile._hash, _ipfs: moralisFile._ipfs },
+                    { _hash: (moralisFile as any)._hash, _ipfs: (moralisFile as any)._ipfs },
                 ]);
             }
 
             if (uploadingMetadata) {
                 setIpfsMeta((prev) => [
                     ...prev,
-                    { _hash: moralisFile._hash, _ipfs: moralisFile._ipfs },
+                    { _hash: (moralisFile as any)._hash, _ipfs: (moralisFile as any)._ipfs },
                 ]);
             }
         }

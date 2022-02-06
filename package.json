@@ -1,39 +1,41 @@
 {
-  "name": "layeralize",
-  "version": "0.0.0",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@chakra-ui/react": "^1.8.1",
-    "@emotion/react": "^11.7.1",
-    "@emotion/styled": "^11.6.0",
-    "@walletconnect/web3-provider": "^1.7.1",
-    "framer-motion": "^5.6.0",
-    "merge-images": "^2.0.0",
-    "moralis": "^1.2.6",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1",
-    "react-moralis": "^1.2.2"
-  },
-  "devDependencies": {
-    "@luchio/eslint-config-vra-ts": "1.x",
-    "@luchio/eslint-rules": "1.x",
-    "@types/merge-images": "^1.2.1",
-    "@types/react": "^17.0.33",
-    "@types/react-dom": "^17.0.10",
-    "@typescript-eslint/eslint-plugin": "4.x",
-    "@typescript-eslint/parser": "4.x",
-    "@vitejs/plugin-react": "^1.0.7",
-    "eslint": "7.x",
-    "eslint-config-airbnb": "18.x",
-    "eslint-config-prettier": "8.x",
-    "eslint-plugin-prettier": "3.x",
-    "prettier": "2.x",
-    "typescript": "^4.4.4",
-    "vite": "^2.7.2"
-  }
+    "name": "layeralize",
+    "version": "0.0.0",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "deploy": "moralis-admin-cli deploy -p dist"
+    },
+    "dependencies": {
+        "@chakra-ui/react": "^1.8.1",
+        "@emotion/react": "^11.7.1",
+        "@emotion/styled": "^11.6.0",
+        "@walletconnect/web3-provider": "^1.7.1",
+        "framer-motion": "^5.6.0",
+        "merge-images": "^2.0.0",
+        "moralis": "^1.2.6",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "react-icons": "^4.3.1",
+        "react-moralis": "^1.2.2"
+    },
+    "devDependencies": {
+        "@luchio/eslint-config-vra-ts": "1.x",
+        "@luchio/eslint-rules": "1.x",
+        "@types/merge-images": "^1.2.1",
+        "@types/react": "^17.0.33",
+        "@types/react-dom": "^17.0.10",
+        "@typescript-eslint/eslint-plugin": "4.x",
+        "@typescript-eslint/parser": "4.x",
+        "@vitejs/plugin-react": "^1.0.7",
+        "eslint": "7.x",
+        "eslint-config-airbnb": "18.x",
+        "eslint-config-prettier": "8.x",
+        "eslint-plugin-prettier": "3.x",
+        "moralis-admin-cli": "^2.1.16",
+        "prettier": "2.x",
+        "typescript": "^4.4.4",
+        "vite": "^2.7.2"
+    }
 }
