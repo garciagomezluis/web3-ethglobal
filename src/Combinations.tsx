@@ -125,7 +125,7 @@ export const getAllCombiations = (layers: LayerType[]) => {
         saveCombinationIfValid(map, combination, combinations);
     }
 
-    return getCombinationsData(combinations, layers);
+    return combinations;
 };
 
 const saveCombinationIfValid = (
@@ -159,30 +159,36 @@ const saveCombinationIfValid = (
     return valid;
 };
 
-export const getTraitInsights = (combinations: string[], amountLayers: number) => {
-    return Array(amountLayers)
+export const getTraitInsights = (combinations: string[], layers: LayerType[]) => {
+    return Array(layers.length)
         .fill('')
-        .map((_, i) => getLayerInsights(combinations, i));
+        .map((_, i) => getLayerInsights(combinations, layers, i));
 };
 
-const getLayerInsights = (combinations: string[], layerIndex: number) => {
-    const traitsUsages: any = {};
+const getLayerInsights = (combinations: string[], layers: LayerType[], layerIndex: number) => {
+    const traitsUsages: any = {
+        name: layers[layerIndex].name,
+        traits: {},
+    };
 
     combinations.forEach((combination) => {
-        const traitIndex = combination[layerIndex];
+        const traitIndex = Number(combination[layerIndex]);
 
-        traitsUsages[traitIndex] = traitsUsages[traitIndex] || 0;
-        traitsUsages[traitIndex]++;
+        traitsUsages.traits[traitIndex] = traitsUsages.traits[traitIndex] || {
+            name: layers[layerIndex].gallery.images[traitIndex].traitValue,
+            usage: 0,
+        };
+        traitsUsages.traits[traitIndex].usage++;
     });
 
-    for (const k in traitsUsages) {
-        traitsUsages[k] = (traitsUsages[k] * 100) / combinations.length;
+    for (const k in traitsUsages.traits) {
+        traitsUsages.traits[k].usage = (traitsUsages.traits[k].usage * 100) / combinations.length;
     }
 
     return traitsUsages;
 };
 
-const getCombinationsData = (combinations: string[], layers: LayerType[]) => {
+export const getCombinationsData = (combinations: string[], layers: LayerType[]) => {
     return combinations.map((c) => combinationToData(c, layers));
 };
 
@@ -192,7 +198,10 @@ const combinationToData = (combination: string, layers: LayerType[]) => {
     const data = [];
 
     for (let i = 0; i < layers.length; i++) {
-        data.push(layers[i].gallery.images[Number(combination[i])]);
+        data.push({
+            idx: Number(combination[i]),
+            ...layers[i].gallery.images[Number(combination[i])],
+        });
     }
 
     return data;

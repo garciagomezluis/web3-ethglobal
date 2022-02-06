@@ -8,11 +8,17 @@ import {
     checkAtLeastByLayer,
     checkLayerCannotBeEmpty,
     getAllCombiations,
+    getCombinationsData,
+    getTraitInsights,
 } from './Combinations';
 
 import { UpDownType, UsageType, getNewID } from './Commons';
 
 interface GlobalProviderProps {}
+
+interface CombinationData extends ImageViewerType {
+    idx: number;
+}
 
 export type ImageViewerType = {
     file: File;
@@ -43,8 +49,9 @@ type GlobalContextType = {
     setFileUsageType: (id: string, file: File, value: UsageType) => void;
     setFileUsageValue: (id: string, file: File, value: number) => void;
     calculateCombinations: () => boolean;
-    combinations: ImageViewerType[][];
+    combinations: CombinationData[][];
     generalError: string;
+    insights: any;
 };
 
 const defaultContext: GlobalContextType = {
@@ -61,19 +68,24 @@ const defaultContext: GlobalContextType = {
     calculateCombinations: () => false,
     combinations: [],
     generalError: '',
+    insights: {},
 };
 
 export const GlobalContext = createContext<GlobalContextType>(defaultContext);
 
 export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ children }) => {
     const [layers, setLayers] = useState<LayerType[]>([]);
-    const [combinations, setCombinations] = useState<ImageViewerType[][]>([]);
+    const [combinations, setCombinations] = useState<CombinationData[][]>([]);
     const [generalError, setGeneralError] = useState('');
+    const [insights, setInsights] = useState({});
 
     useEffect(() => {
         setCombinations([]);
         setGeneralError('');
+        setInsights({});
     }, [layers]);
+
+    useEffect(() => console.log(insights), [insights]);
 
     const createLayer = () => {
         setLayers((prev) => [
@@ -279,7 +291,9 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
 
         const combs = getAllCombiations(layers);
 
-        setCombinations(combs);
+        setCombinations(getCombinationsData(combs, layers));
+
+        setInsights(getTraitInsights(combs, layers));
 
         return true;
     };
@@ -300,6 +314,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 calculateCombinations,
                 combinations,
                 generalError,
+                insights,
             }}
         >
             {children}

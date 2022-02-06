@@ -1,7 +1,13 @@
 import { FC } from 'react';
 import { Text, VStack } from '@chakra-ui/react';
 
-export const Trait: FC = () => {
+interface TraitProps {
+    name: string;
+    value: string;
+    usage: number;
+}
+
+export const Trait: FC<TraitProps> = ({ name, value, usage }) => {
     return (
         <VStack
             bg="gray.100"
@@ -20,14 +26,14 @@ export const Trait: FC = () => {
                 m="0 !important"
                 textTransform="uppercase"
             >
-                Background
+                {name}
             </Text>
             <Text color="gray.500" fontSize="lg" fontWeight="bold" mt="5px !important">
-                Dark
+                {value}
             </Text>
 
             <Text color="black.400" fontSize="xs" letterSpacing="1px" mt="5px !important">
-                12% have this trait
+                {usage}% have this trait
             </Text>
         </VStack>
     );

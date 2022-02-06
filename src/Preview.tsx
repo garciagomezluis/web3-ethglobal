@@ -8,9 +8,10 @@ import mergeImages from 'merge-images';
 
 import { GlobalContext } from './GlobalContext';
 import Trait from './Trait';
+import { getNewID } from './Commons';
 
 export const Preview: FC = () => {
-    const { combinations } = useContext(GlobalContext);
+    const { combinations, insights } = useContext(GlobalContext);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -27,6 +28,15 @@ export const Preview: FC = () => {
             }
         });
     }, [selectedIndex]);
+
+    const getTrait = (layerIndex: number, traitIndex: number) => {
+        return {
+            name: insights[layerIndex].name,
+            value: insights[layerIndex].traits[traitIndex].name,
+            usage: insights[layerIndex].traits[traitIndex].usage,
+            id: getNewID(),
+        };
+    };
 
     return (
         <VStack justify="center">
@@ -60,9 +70,18 @@ export const Preview: FC = () => {
                 </HStack>
             </VStack>
             <HStack mt="30px !important" w="full">
-                {[1, 1].map((trait) => (
-                    <Trait />
-                ))}
+                {combinations[selectedIndex].map((image, layerIndex) => {
+                    const trait = getTrait(layerIndex, image.idx);
+
+                    return (
+                        <Trait
+                            key={trait.id}
+                            name={trait.name}
+                            usage={trait.usage}
+                            value={trait.value}
+                        />
+                    );
+                })}
             </HStack>
             <HStack w="full">
                 <Spacer />
