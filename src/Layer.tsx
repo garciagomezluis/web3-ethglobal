@@ -57,14 +57,16 @@ export const Layer: FC<LayerProps> = ({ id, name, moveDownAllowed, moveUpAllowed
                             onClick={() => moveLayer(id, 'down')}
                         />
                     )}
-                    <Button
-                        colorScheme="pink"
-                        leftIcon={<AiFillCloseCircle />}
-                        variant="solid"
-                        onClick={() => removeLayer(id)}
-                    >
-                        Remove
-                    </Button>
+                    {(moveUpAllowed || moveDownAllowed) && (
+                        <Button
+                            colorScheme="pink"
+                            leftIcon={<AiFillCloseCircle />}
+                            variant="solid"
+                            onClick={() => removeLayer(id)}
+                        >
+                            Remove
+                        </Button>
+                    )}
                 </HStack>
 
                 <Gallery id={id} images={gallery.images} />
