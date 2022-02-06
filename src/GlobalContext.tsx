@@ -279,9 +279,9 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
 
         const failingData = checkAllImagesWithData(layers);
 
-        if (Object.keys(failingData).length > 0) {
+        if (failingData.length > 0) {
             setGeneralError(
-                `Please, check layers ${Object.keys(failingData).join(
+                `Please, check layers ${failingData.join(
                     ', ',
                 )}: All images must have the trait description set.`,
             );

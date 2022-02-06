@@ -41,15 +41,17 @@ export const checkAtLeastByLayer = (layers: LayerType[]) => {
 };
 
 export const checkAllImagesWithData = (layers: LayerType[]) => {
-    const failingLayers: any = {};
+    const failingLayers: any = [];
 
     for (let i = 0; i < layers.length; i++) {
         const currentLayer = layers[i];
 
         for (let j = 0; j < currentLayer.gallery.images.length; j++) {
             if (currentLayer.gallery.images[j].traitValue === '') {
-                failingLayers[i] = failingLayers[i] || [];
-                failingLayers[i].push(j);
+                // failingLayers[i] = failingLayers[i] || [];
+                // failingLayers[i].push(j);
+
+                failingLayers.push(currentLayer.name);
             }
         }
     }
