@@ -155,7 +155,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                     const nonLoadedImages: ImageViewerType[] = nonLoadedFiles.map((f) => {
                         return {
                             file: f,
-                            traitValue: '',
+                            traitValue: f.name,
                             usageType: 'atleast',
                             usageValue: 1,
                         };
