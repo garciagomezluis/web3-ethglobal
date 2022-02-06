@@ -85,8 +85,6 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
         setInsights({});
     }, [layers]);
 
-    useEffect(() => console.log(insights), [insights]);
-
     const createLayer = () => {
         setLayers((prev) => [
             ...prev,
