@@ -4,13 +4,20 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import GlobalProvider from './GlobalContext';
+import { MoralisProvider } from 'react-moralis';
 
 ReactDOM.render(
     <React.StrictMode>
         <ChakraProvider>
-            <GlobalProvider>
-                <App />
-            </GlobalProvider>
+            <MoralisProvider
+                initializeOnMount
+                appId="aNvLuGhU8CZQiNUPZ941VsKZOoswoI5K9BZyddC7"
+                serverUrl="https://olputa0a7acn.usemoralis.com:2053/server"
+            >
+                <GlobalProvider>
+                    <App />
+                </GlobalProvider>
+            </MoralisProvider>
         </ChakraProvider>
     </React.StrictMode>,
     document.getElementById('root'),

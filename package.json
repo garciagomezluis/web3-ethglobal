@@ -10,11 +10,14 @@
     "@chakra-ui/react": "^1.8.1",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@walletconnect/web3-provider": "^1.7.1",
     "framer-motion": "^5.6.0",
     "merge-images": "^2.0.0",
+    "moralis": "^1.2.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-icons": "^4.3.1"
+    "react-icons": "^4.3.1",
+    "react-moralis": "^1.2.2"
   },
   "devDependencies": {
     "@luchio/eslint-config-vra-ts": "1.x",

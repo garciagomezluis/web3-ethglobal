@@ -16,7 +16,7 @@ import { UpDownType, UsageType, getNewID } from './Commons';
 
 interface GlobalProviderProps {}
 
-interface CombinationData extends ImageViewerType {
+export interface CombinationData extends ImageViewerType {
     idx: number;
 }
 

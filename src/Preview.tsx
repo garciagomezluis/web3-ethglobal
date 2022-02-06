@@ -6,28 +6,54 @@ import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
 
 import mergeImages from 'merge-images';
 
-import { GlobalContext } from './GlobalContext';
 import Trait from './Trait';
 import { getNewID } from './Commons';
+import { CombinationData, GlobalContext } from './GlobalContext';
 
-export const Preview: FC = () => {
+export const Preview: FC<any> = ({ b64Images, setB64Images, attrs, setAttrs }) => {
     const { combinations, insights } = useContext(GlobalContext);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const imageRef = useRef<HTMLImageElement>(null);
 
-    useEffect(() => {
-        const names = [
-            ...combinations[selectedIndex].map((image) => URL.createObjectURL(image.file)),
-        ];
+    const getBase64Image = async (combination: CombinationData[]) => {
+        const names = [...combination.map((image) => URL.createObjectURL(image.file))];
 
-        mergeImages(names).then((data) => {
-            if (imageRef.current !== null) {
-                imageRef.current.src = data;
-            }
-        });
+        const b64 = await mergeImages(names);
+
+        return b64;
+    };
+
+    useEffect(() => {
+        if (imageRef.current !== null) {
+            imageRef.current.src = b64Images[selectedIndex];
+        }
     }, [selectedIndex]);
+
+    useEffect(() => {
+        // Promise.all([...combinations.map(getBase64Image)]).then(setB64Images);
+
+        Promise.all([
+            ...combinations.map(async (combination: CombinationData[]) => {
+                return {
+                    base64: await getBase64Image(combination),
+                    attrs: combination.map((image, layerIndex) => getTrait(layerIndex, image.idx)),
+                };
+            }),
+        ]).then((results) => {
+            const abase64 = [];
+            const aattrs = [];
+
+            for (let i = 0; i < results.length; i++) {
+                abase64.push(results[i].base64);
+                aattrs.push(results[i].attrs);
+            }
+
+            setB64Images(abase64);
+            setAttrs(aattrs);
+        });
+    }, []);
 
     const getTrait = (layerIndex: number, traitIndex: number) => {
         return {
@@ -78,15 +104,14 @@ export const Preview: FC = () => {
                 </HStack>
             </VStack>
             <HStack justify="center" mt="30px !important" w="full" wrap="wrap">
-                {combinations[selectedIndex].map((image, layerIndex) => {
-                    const trait = getTrait(layerIndex, image.idx);
-
-                    return (
-                        <Box key={trait.id} m="5px !important">
-                            <Trait name={trait.name} usage={trait.usage} value={trait.value} />
-                        </Box>
-                    );
-                })}
+                {attrs.length > 0 &&
+                    attrs[selectedIndex].map((trait: any) => {
+                        return (
+                            <Box key={trait.id} m="5px !important">
+                                <Trait name={trait.name} usage={trait.usage} value={trait.value} />
+                            </Box>
+                        );
+                    })}
             </HStack>
         </VStack>
     );
