@@ -65,7 +65,7 @@ function App() {
                     </DrawerBody>
                 </DrawerContent>
             </Drawer>
-            <Accordion allowToggle>
+            <Accordion>
                 {layers.map((layer: LayerType, i: number) => (
                     <Layer
                         key={layer.id}
