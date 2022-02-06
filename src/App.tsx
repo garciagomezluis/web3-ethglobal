@@ -32,6 +32,7 @@ function App() {
 
     useEffect(() => {
         createLayer();
+        createLayer();
     }, []);
 
     const previewClick = () => {

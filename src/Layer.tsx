@@ -57,7 +57,7 @@ export const Layer: FC<LayerProps> = ({ id, name, moveDownAllowed, moveUpAllowed
                             onClick={() => moveLayer(id, 'down')}
                         />
                     )}
-                    {(moveUpAllowed || moveDownAllowed) && (
+                    {moveUpAllowed && moveDownAllowed && (
                         <Button
                             colorScheme="pink"
                             leftIcon={<AiFillCloseCircle />}
