@@ -12,7 +12,6 @@ import {
     DrawerHeader,
     DrawerOverlay,
     HStack,
-    Image,
     List,
     ListIcon,
     ListItem,
@@ -29,23 +28,50 @@ import {
     useDisclosure,
     useToast,
 } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
 
 import Layer from './Layer';
 import Preview from './Preview';
+import axios from 'axios';
 import { GlobalContext, LayerType } from './GlobalContext';
 import { useMoralis, useMoralisFile } from 'react-moralis';
 
 import { HiArrowSmRight, HiCheck } from 'react-icons/hi';
 
-const getMetaDataObject = (imageHash: string, attrs: any[]) => {
+function leftFillNum(num: number, targetLength: number) {
+    return num.toString().padStart(targetLength, '0');
+}
+
+const createFolderIPFS = async (content: any) => {
+    try {
+        const res = await axios.post(
+            'https://deep-index.moralis.io/api/v2/ipfs/uploadFolder',
+            content,
+            {
+                headers: {
+                    'X-API-Key': 'NNOI1SY6ieKzX3kBRjKHQNMunOVQ8oa66uaW4O18gu8Z2cizt6NNZctPlXPjdj4T',
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json',
+                },
+            },
+        );
+
+        const exampleUri = res.data[0].path;
+
+        return exampleUri.substr(exampleUri.indexOf('Qm'), 46);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const getMetadataERC1155 = (imageHash: string, attrs: any[], i: number) => {
     return {
-        description: 'Una linda colección',
+        description: `#${i}`,
         external_url: 'holamundo.com',
-        image: `ipfs://${imageHash}`,
-        name: 'Hola Mundo Colletion!',
+        image: `ipfs://${imageHash}/images/${leftFillNum(i, 64)}.png`,
+        name: 'Layeralize ETH Global Collection',
         attributes: attrs.map((attr: any) => {
             return {
                 name: attr.name,
@@ -56,18 +82,15 @@ const getMetaDataObject = (imageHash: string, attrs: any[]) => {
 };
 
 const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
-    const { error, moralisFile, saveFile } = useMoralisFile();
+    const { error } = useMoralisFile();
     const { account } = useMoralis();
 
     const toast = useToast();
-    const imgRef = useRef<HTMLImageElement>(null);
 
     const [uploading, setUploading] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingMetadata, setUploadingMetadata] = useState(false);
     const [makingTransaction, setMakingTransaction] = useState(false);
-    const [ipfsImages, setIpfsImages] = useState<any[]>([]);
-    const [ipfsMeta, setIpfsMeta] = useState<any[]>([]);
     const [done, setDone] = useState(false);
 
     useEffect(() => {
@@ -75,14 +98,8 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
             setUploadingImage(false);
             setUploadingMetadata(false);
             setMakingTransaction(false);
-            setIpfsImages([]);
-            setIpfsMeta([]);
         }
     }, [done]);
-
-    useEffect(() => {
-        setUploading(uploadingImage || uploadingMetadata || makingTransaction);
-    }, [uploadingImage, uploadingMetadata, makingTransaction]);
 
     useEffect(() => {
         if (error) {
@@ -98,44 +115,6 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
         }
     }, [error]);
 
-    // useEffect(() => {
-    //     console.log(ipfsMeta, ipfsImages, account);
-    // }, [ipfsImages, ipfsMeta, account]);
-
-    useEffect(() => {
-        if (moralisFile !== null) {
-            if (uploadingImage) {
-                setIpfsImages((prev) => [
-                    ...prev,
-                    { _hash: (moralisFile as any)._hash, _ipfs: (moralisFile as any)._ipfs },
-                ]);
-            }
-
-            if (uploadingMetadata) {
-                setIpfsMeta((prev) => [
-                    ...prev,
-                    { _hash: (moralisFile as any)._hash, _ipfs: (moralisFile as any)._ipfs },
-                ]);
-            }
-        }
-    }, [moralisFile]);
-
-    useEffect(() => {
-        (async () => {
-            if (files.length !== 0 && ipfsImages.length === files.length) {
-                uploadMeta();
-            }
-        })();
-    }, [ipfsImages]);
-
-    useEffect(() => {
-        (async () => {
-            if (files.length !== 0 && ipfsMeta.length === files.length) {
-                setDone(true);
-            }
-        })();
-    }, [ipfsMeta]);
-
     const onMintConfirm = async () => {
         if (done) {
             setDone(false);
@@ -143,38 +122,55 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
             return onClose();
         }
 
-        await uploadImages();
+        setUploading(true);
+
+        const ipfsCidImages = await uploadImages();
+
+        const ipfsCidMetadata = await uploadMetadata(ipfsCidImages);
+
+        setUploading(false);
+
+        console.log(ipfsCidMetadata);
+
+        setDone(true);
     };
 
     const uploadImages = async () => {
         setUploadingImage(true);
-        for (let i = 0; i < files.length; i++) {
-            if (imgRef.current !== null) {
-                // debugger;
-                imgRef.current.src = files[i];
-            }
 
-            await saveFile(`${i}.png`, { base64: files[i] }, { saveIPFS: true });
+        const ipfsContent = [];
+
+        for (let i = 0; i < files.length; i++) {
+            ipfsContent.push({
+                path: `images/${leftFillNum(i, 64)}.png`,
+                content: files[i],
+            });
         }
+
+        const ipfsCid = await createFolderIPFS(ipfsContent);
+
         setUploadingImage(false);
+
+        return ipfsCid;
     };
 
-    const uploadMeta = async () => {
+    const uploadMetadata = async (ipfsCidImages: string) => {
         setUploadingMetadata(true);
+
+        const ipfsContent = [];
+
         for (let i = 0; i < files.length; i++) {
-            if (imgRef.current !== null) {
-                imgRef.current.src = files[i];
-            }
-
-            const meta = getMetaDataObject(ipfsImages[i]._hash, attrs[i]);
-
-            await saveFile(
-                `meta-${i}.json`,
-                { base64: btoa(JSON.stringify(meta)) },
-                { saveIPFS: true },
-            );
+            ipfsContent.push({
+                path: `metadata/${leftFillNum(i, 64)}.json`,
+                content: getMetadataERC1155(ipfsCidImages, attrs[i], i),
+            });
         }
+
+        const ipfsCid = await createFolderIPFS(ipfsContent);
+
         setUploadingMetadata(false);
+
+        return ipfsCid;
     };
 
     return (
@@ -194,7 +190,6 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
                             <Text color="pink.500" fontWeight="bold" w="full">
                                 Uploading resources
                             </Text>
-                            <Image ref={imgRef} boxSize="100px" />
                             <List mt="15px !important" spacing={3} w="full">
                                 <ListItem>
                                     {(uploadingImage || done) && (
