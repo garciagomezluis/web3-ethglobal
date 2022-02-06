@@ -57,6 +57,7 @@ const getMetaDataObject = (imageHash: string, attrs: any[]) => {
 
 const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
     const { error, moralisFile, saveFile } = useMoralisFile();
+    const { account } = useMoralis();
 
     const toast = useToast();
     const imgRef = useRef<HTMLImageElement>(null);
@@ -98,8 +99,8 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
     }, [error]);
 
     useEffect(() => {
-        console.log(ipfsMeta, ipfsImages);
-    }, [ipfsImages, ipfsMeta]);
+        console.log(ipfsMeta, ipfsImages, account);
+    }, [ipfsImages, ipfsMeta, account]);
 
     useEffect(() => {
         if (moralisFile !== null) {
@@ -239,6 +240,7 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
                             operation with a network fee. Please, do not close the tab once
                             confirmed.
                         </Text>
+                        <Text mt="2">{account}</Text>
                     </VStack>
                 </ModalBody>
 
