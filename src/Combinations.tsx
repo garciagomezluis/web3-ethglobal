@@ -182,7 +182,9 @@ const getLayerInsights = (combinations: string[], layers: LayerType[], layerInde
     });
 
     for (const k in traitsUsages.traits) {
-        traitsUsages.traits[k].usage = (traitsUsages.traits[k].usage * 100) / combinations.length;
+        traitsUsages.traits[k].usage = Math.floor(
+            (traitsUsages.traits[k].usage * 100) / combinations.length,
+        );
     }
 
     return traitsUsages;

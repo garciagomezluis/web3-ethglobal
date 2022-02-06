@@ -121,20 +121,22 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
 
     const moveLayer = (id: string, direction: UpDownType) => {
         setLayers((prev) => {
-            for (let i = 0; i < prev.length; i++) {
+            const aux = [...prev];
+
+            for (let i = 0; i < aux.length; i++) {
                 const j = direction === 'down' ? i + 1 : i - 1;
 
-                if (prev[i].id === id) {
-                    const aux = prev[i];
+                if (aux[i].id === id) {
+                    const auxA = aux[i];
 
-                    prev[i] = prev[j];
-                    prev[j] = aux;
+                    aux[i] = aux[j];
+                    aux[j] = auxA;
 
                     break;
                 }
             }
 
-            return [...prev];
+            return [...aux];
         });
     };
 
