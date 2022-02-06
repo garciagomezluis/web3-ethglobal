@@ -6,9 +6,11 @@ import {
     Drawer,
     DrawerBody,
     DrawerContent,
+    DrawerFooter,
     DrawerHeader,
     DrawerOverlay,
     HStack,
+    Spacer,
     useDisclosure,
     useToast,
 } from '@chakra-ui/react';
@@ -60,10 +62,20 @@ function App() {
             <Drawer isOpen={isOpen} size="md" onClose={onClose}>
                 <DrawerOverlay />
                 <DrawerContent>
-                    <DrawerHeader>Collection preview</DrawerHeader>
+                    <DrawerHeader bg="pink.500" color="white" fontSize="xl">
+                        Collection preview
+                    </DrawerHeader>
                     <DrawerBody>
                         <Preview />
                     </DrawerBody>
+                    <DrawerFooter>
+                        <HStack w="full">
+                            <Spacer />
+                            <Button colorScheme="pink" variant="solid" onClick={() => {}}>
+                                Mint collection
+                            </Button>
+                        </HStack>
+                    </DrawerFooter>
                 </DrawerContent>
             </Drawer>
             <Accordion>

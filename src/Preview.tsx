@@ -1,4 +1,4 @@
-import { Button, HStack, IconButton, Image, Spacer, Text, VStack } from '@chakra-ui/react';
+import { Box, HStack, IconButton, Image, Spacer, Text, VStack } from '@chakra-ui/react';
 import { FC, useContext, useEffect, useRef, useState } from 'react';
 
 import { BsTrash } from 'react-icons/bs';
@@ -41,12 +41,20 @@ export const Preview: FC = () => {
     return (
         <VStack justify="center">
             <VStack w="300px">
-                <Text textAlign="right" w="full">
+                <Text
+                    color="pink.500"
+                    fontSize="x-large"
+                    fontWeight="semibold"
+                    letterSpacing="2px"
+                    textAlign="right"
+                    w="full"
+                >
                     {selectedIndex + 1}/{combinations.length}
                 </Text>
                 <Image ref={imageRef} boxSize="300px" />
                 <HStack justify="center" w="full">
                     <IconButton
+                        disabled
                         aria-label="remove"
                         colorScheme="pink"
                         icon={<BsTrash />}
@@ -69,25 +77,16 @@ export const Preview: FC = () => {
                     />
                 </HStack>
             </VStack>
-            <HStack mt="30px !important" w="full">
+            <HStack justify="center" mt="30px !important" w="full" wrap="wrap">
                 {combinations[selectedIndex].map((image, layerIndex) => {
                     const trait = getTrait(layerIndex, image.idx);
 
                     return (
-                        <Trait
-                            key={trait.id}
-                            name={trait.name}
-                            usage={trait.usage}
-                            value={trait.value}
-                        />
+                        <Box key={trait.id} m="5px !important">
+                            <Trait name={trait.name} usage={trait.usage} value={trait.value} />
+                        </Box>
                     );
                 })}
-            </HStack>
-            <HStack w="full">
-                <Spacer />
-                <Button colorScheme="pink" variant="solid" onClick={() => {}}>
-                    Mint collection
-                </Button>
             </HStack>
         </VStack>
     );
