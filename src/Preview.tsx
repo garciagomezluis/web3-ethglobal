@@ -29,7 +29,7 @@ export const Preview: FC<any> = ({ b64Images, setB64Images, attrs, setAttrs }) =
         if (imageRef.current !== null) {
             imageRef.current.src = b64Images[selectedIndex];
         }
-    }, [selectedIndex]);
+    }, [selectedIndex, b64Images]);
 
     useEffect(() => {
         // Promise.all([...combinations.map(getBase64Image)]).then(setB64Images);

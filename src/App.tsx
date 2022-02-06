@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import {
@@ -69,6 +70,16 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
     const [done, setDone] = useState(false);
 
     useEffect(() => {
+        if (done) {
+            setUploadingImage(false);
+            setUploadingMetadata(false);
+            setMakingTransaction(false);
+            setIpfsImages([]);
+            setIpfsMeta([]);
+        }
+    }, [done]);
+
+    useEffect(() => {
         setUploading(uploadingImage || uploadingMetadata || makingTransaction);
     }, [uploadingImage, uploadingMetadata, makingTransaction]);
 
@@ -125,7 +136,11 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
     }, [ipfsMeta]);
 
     const onMintConfirm = async () => {
-        if (done) return onClose();
+        if (done) {
+            setDone(false);
+
+            return onClose();
+        }
 
         await uploadImages();
     };
@@ -134,6 +149,7 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
         setUploadingImage(true);
         for (let i = 0; i < files.length; i++) {
             if (imgRef.current !== null) {
+                // debugger;
                 imgRef.current.src = files[i];
             }
 
@@ -172,62 +188,58 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
                 <ModalHeader>Collection minting</ModalHeader>
                 <ModalCloseButton disabled={uploading} />
                 <ModalBody>
-                    {(uploading || done) && (
-                        <>
-                            <VStack w="full">
-                                <Text color="pink.500" fontWeight="bold" w="full">
-                                    Uploading resources
-                                </Text>
-                                <Image ref={imgRef} boxSize="100px" />
-                                <List mt="15px !important" spacing={3} w="full">
-                                    <ListItem>
-                                        {(uploadingImage || done) && (
-                                            <ListIcon
-                                                as={done ? HiCheck : HiArrowSmRight}
-                                                color="pink.500"
-                                            />
-                                        )}
-                                        Uploading image to IPFS
-                                    </ListItem>
-                                    <ListItem>
-                                        {(uploadingMetadata || done) && (
-                                            <ListIcon
-                                                as={done ? HiCheck : HiArrowSmRight}
-                                                color="pink.500"
-                                            />
-                                        )}
-                                        Uploading NFT metadata
-                                    </ListItem>
-                                </List>
-                            </VStack>
-                            <VStack mt="5" w="full">
-                                <Text color="pink.500" fontWeight="bold" w="full">
-                                    Finally
-                                </Text>
-                                <List spacing={3} w="full">
-                                    <ListItem>
-                                        {(makingTransaction || done) && (
-                                            <ListIcon
-                                                as={done ? HiCheck : HiArrowSmRight}
-                                                color="pink.500"
-                                            />
-                                        )}
-                                        Transaction sign
-                                    </ListItem>
-                                </List>
-                            </VStack>
-                        </>
-                    )}
-                    {!(uploading || done) && (
-                        <VStack>
-                            <Text>
-                                {files.length} images will integrate the collection. This might take
-                                a few minutes. You will be required to sign a transaction as the
-                                last operation with a network fee. Please, do not close the tab once
-                                confirmed.
+                    <>
+                        <VStack display={uploading || done ? 'flex' : 'none'} w="full">
+                            <Text color="pink.500" fontWeight="bold" w="full">
+                                Uploading resources
                             </Text>
+                            <Image ref={imgRef} boxSize="100px" />
+                            <List mt="15px !important" spacing={3} w="full">
+                                <ListItem>
+                                    {(uploadingImage || done) && (
+                                        <ListIcon
+                                            as={done ? HiCheck : HiArrowSmRight}
+                                            color="pink.500"
+                                        />
+                                    )}
+                                    Uploading image to IPFS
+                                </ListItem>
+                                <ListItem>
+                                    {(uploadingMetadata || done) && (
+                                        <ListIcon
+                                            as={done ? HiCheck : HiArrowSmRight}
+                                            color="pink.500"
+                                        />
+                                    )}
+                                    Uploading NFT metadata
+                                </ListItem>
+                            </List>
                         </VStack>
-                    )}
+                        <VStack display={uploading || done ? 'flex' : 'none'} mt="5" w="full">
+                            <Text color="pink.500" fontWeight="bold" w="full">
+                                Finally
+                            </Text>
+                            <List spacing={3} w="full">
+                                <ListItem>
+                                    {(makingTransaction || done) && (
+                                        <ListIcon
+                                            as={done ? HiCheck : HiArrowSmRight}
+                                            color="pink.500"
+                                        />
+                                    )}
+                                    Transaction sign
+                                </ListItem>
+                            </List>
+                        </VStack>
+                    </>
+                    <VStack display={!uploading && !done ? 'flex' : 'none'}>
+                        <Text>
+                            {files.length} images will integrate the collection. This might take a
+                            few minutes. You will be required to sign a transaction as the last
+                            operation with a network fee. Please, do not close the tab once
+                            confirmed.
+                        </Text>
+                    </VStack>
                 </ModalBody>
 
                 <ModalFooter>
