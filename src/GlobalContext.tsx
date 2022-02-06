@@ -197,7 +197,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 if (layer.id === id) {
                     layer.gallery.images = layer.gallery.images.map((i) => {
                         if (i.file.name === file.name) {
-                            i.traitValue = value;
+                            i.traitValue = value.replace('.png', '');
                         }
 
                         return i;

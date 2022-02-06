@@ -68,13 +68,13 @@ const createFolderIPFS = async (content: any) => {
 
 const getMetadataERC1155 = (imageHash: string, attrs: any[], i: number) => {
     return {
-        description: `#${i}`,
-        external_url: 'holamundo.com',
+        description: `Test collection. Layerlize. ETH GLOBAL 2022. Token #${i}`,
+        external_url: 'https://github.com/garciagomezluis/web3-ethglobal',
         image: `ipfs://${imageHash}/images/${leftFillNum(i, 64)}.png`,
-        name: 'Layeralize ETH Global Collection',
+        name: `Layeralize ETH Global Collection #${i}`,
         attributes: attrs.map((attr: any) => {
             return {
-                name: attr.name,
+                trait_type: attr.name,
                 value: attr.value,
             };
         }),
@@ -198,7 +198,7 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
                                             color="pink.500"
                                         />
                                     )}
-                                    Uploading image to IPFS
+                                    Uploading images to IPFS
                                 </ListItem>
                                 <ListItem>
                                     {(uploadingMetadata || done) && (
@@ -207,7 +207,7 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
                                             color="pink.500"
                                         />
                                     )}
-                                    Uploading NFT metadata
+                                    Uploading NFTs metadata
                                 </ListItem>
                             </List>
                         </VStack>

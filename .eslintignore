@@ -4,3 +4,4 @@ coverage
 .idea
 .vscode
 package-lock.json
+hardhat.config.js
