@@ -12,7 +12,6 @@ import {
     DrawerHeader,
     DrawerOverlay,
     HStack,
-    Link,
     List,
     ListIcon,
     ListItem,
