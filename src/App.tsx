@@ -319,7 +319,7 @@ function App() {
                 chainId: 80001,
             });
         }
-    }, [isAuthenticated]);
+    }, []);
 
     useEffect(() => {
         createLayer();
@@ -372,16 +372,20 @@ function App() {
                         {isUploading ? 'cargando...' : ''}
                         <HStack w="full">
                             <Spacer />
-                            {!isAuthenticated && (
+                            {!isWeb3Enabled && (
                                 <Button
                                     colorScheme="pink"
                                     variant="solid"
-                                    onClick={() => authenticate({ signingMessage: 'Hola mundo!' })}
+                                    onClick={() =>
+                                        enableWeb3({
+                                            chainId: 80001,
+                                        })
+                                    }
                                 >
                                     Connect wallet
                                 </Button>
                             )}
-                            {isAuthenticated && (
+                            {isWeb3Enabled && (
                                 <Button colorScheme="pink" variant="solid" onClick={onMintOpen}>
                                     Mint collection
                                 </Button>
@@ -422,16 +426,20 @@ function App() {
                     >
                         Preview
                     </Button>
-                    {!isAuthenticated && (
+                    {!isWeb3Enabled && (
                         <Button
                             colorScheme="pink"
                             variant="solid"
-                            onClick={() => authenticate({ signingMessage: 'Hola mundo!' })}
+                            onClick={() =>
+                                enableWeb3({
+                                    chainId: 80001,
+                                })
+                            }
                         >
                             Connect wallet
                         </Button>
                     )}
-                    {isAuthenticated && (
+                    {isWeb3Enabled && (
                         <Button colorScheme="pink" variant="solid" onClick={() => logout()}>
                             Disconnect
                         </Button>
