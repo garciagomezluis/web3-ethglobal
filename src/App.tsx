@@ -12,6 +12,7 @@ import {
     DrawerHeader,
     DrawerOverlay,
     HStack,
+    Link,
     List,
     ListIcon,
     ListItem,
@@ -72,7 +73,7 @@ const createFolderIPFS = async (content: any) => {
 
 const getMetadataERC1155 = (imageHash: string, attrs: any[], i: number) => {
     return {
-        description: `Test collection. Layerlize. ETH GLOBAL 2022. Token #${i}`,
+        description: `Test collection. Layeralize. ETH GLOBAL 2022. Token #${i}`,
         external_url: 'https://github.com/garciagomezluis/web3-ethglobal',
         image: `ipfs://${imageHash}/images/${leftFillNum(i, 64)}.png`,
         name: `Layeralize ETH Global Collection #${i}`,
