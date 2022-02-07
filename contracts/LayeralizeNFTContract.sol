@@ -19,7 +19,7 @@ contract LayeralizeNFTContract is ERC1155 {
     string private constant _IPFS = "ipfs://";
     string private constant _METADATA = "/metadata/{id}.json";
 
-    constructor(string memory ipfsCID, uint256 amount) ERC1155(string(abi.encodePacked(_IPFS, ipfsCID, _METADATA))) {
+    constructor(string memory ipfsCID, uint256 amount, address account) ERC1155(string(abi.encodePacked(_IPFS, ipfsCID, _METADATA))) {
 
         uint256[] memory ids = new uint256[](amount);
         uint256[] memory amounts = new uint256[](amount);
@@ -29,7 +29,7 @@ contract LayeralizeNFTContract is ERC1155 {
             amounts[i] = 1;
         }
 
-        _mintBatch(msg.sender, ids, amounts, "");
+        _mintBatch(account, ids, amounts, "");
     }
 
     function contractURI() public pure returns (string memory) {

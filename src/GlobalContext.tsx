@@ -155,7 +155,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                     const nonLoadedImages: ImageViewerType[] = nonLoadedFiles.map((f) => {
                         return {
                             file: f,
-                            traitValue: f.name,
+                            traitValue: f.name.replace('.png', ''),
                             usageType: 'atleast',
                             usageValue: 1,
                         };
@@ -197,7 +197,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
                 if (layer.id === id) {
                     layer.gallery.images = layer.gallery.images.map((i) => {
                         if (i.file.name === file.name) {
-                            i.traitValue = value.replace('.png', '');
+                            i.traitValue = value;
                         }
 
                         return i;

@@ -2,15 +2,24 @@
 const hre = require('hardhat');
 
 const main = async () => {
-    const LayeralizeNFTContract = await hre.ethers.getContractFactory('LayeralizeNFTContract');
-    const layeralizeNFTContract = await LayeralizeNFTContract.deploy(
-        'QmcgbiEDANTcSxyS27wtoFybuJXRcaMWxsTJV7SBQ4a6JG',
-        21,
+    // const LayeralizeNFTContract = await hre.ethers.getContractFactory('LayeralizeNFTContract');
+    // const layeralizeNFTContract = await LayeralizeNFTContract.deploy(
+    //     'QmcgbiEDANTcSxyS27wtoFybuJXRcaMWxsTJV7SBQ4a6JG',
+    //     21,
+    // );
+
+    // await layeralizeNFTContract.deployed();
+
+    // console.log('LayeralizeNFTContract deployed to:', layeralizeNFTContract.address);
+
+    const LayeralizeFactoryContract = await hre.ethers.getContractFactory(
+        'LayeralizeFactoryContract',
     );
+    const layeralizeFactoryContract = await LayeralizeFactoryContract.deploy();
 
-    await layeralizeNFTContract.deployed();
+    await layeralizeFactoryContract.deployed();
 
-    console.log('LayeralizeNFTContract deployed to:', layeralizeNFTContract.address);
+    console.log('LayeralizeFactoryContract deployed to:', layeralizeFactoryContract.address);
 };
 
 const runMain = async () => {

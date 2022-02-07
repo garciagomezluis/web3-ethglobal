@@ -36,9 +36,13 @@ import Layer from './Layer';
 import Preview from './Preview';
 import axios from 'axios';
 import { GlobalContext, LayerType } from './GlobalContext';
-import { useMoralis, useMoralisFile } from 'react-moralis';
+import { useMoralis, useMoralisFile, useWeb3ExecuteFunction } from 'react-moralis';
 
 import { HiArrowSmRight, HiCheck } from 'react-icons/hi';
+
+import { abi } from '../artifacts/contracts/LayeralizeFactoryContract.sol/LayeralizeFactoryContract.json';
+
+const CONTRACT_ADDRESS = '0x0BD6166f462896AeaC4ba5cABDbf2c2eDbDD076C';
 
 function leftFillNum(num: number, targetLength: number) {
     return num.toString().padStart(targetLength, '0');
@@ -87,6 +91,8 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
 
     const toast = useToast();
 
+    const { data: transaction, error: errorTransaction, fetch } = useWeb3ExecuteFunction();
+
     const [uploading, setUploading] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingMetadata, setUploadingMetadata] = useState(false);
@@ -115,6 +121,8 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
         }
     }, [error]);
 
+    useEffect(() => console.log(transaction, errorTransaction), [transaction, errorTransaction]);
+
     const onMintConfirm = async () => {
         if (done) {
             setDone(false);
@@ -131,6 +139,22 @@ const MintModal: FC<any> = ({ isOpen, onClose, files, attrs }) => {
         setUploading(false);
 
         console.log(ipfsCidMetadata);
+
+        setMakingTransaction(true);
+
+        await fetch({
+            params: {
+                abi,
+                contractAddress: CONTRACT_ADDRESS,
+                functionName: 'createCollection',
+                params: {
+                    ipfsCID: ipfsCidMetadata,
+                    amount: files.length,
+                },
+            },
+        });
+
+        setMakingTransaction(false);
 
         setDone(true);
     };
@@ -273,9 +297,29 @@ function App() {
 
     const { isOpen: isMintOpen, onOpen: onMintOpen, onClose: onMintClose } = useDisclosure();
 
-    const { authenticate, isAuthenticated, logout } = useMoralis();
+    const {
+        authenticate,
+        isAuthenticated,
+        logout,
+        enableWeb3,
+        web3EnableError,
+        isWeb3Enabled,
+        isWeb3EnableLoading,
+    } = useMoralis();
 
     const { isUploading } = useMoralisFile();
+
+    useEffect(() => {
+        console.log(web3EnableError);
+    }, [web3EnableError]);
+
+    useEffect(() => {
+        if (!isWeb3Enabled && !isWeb3EnableLoading) {
+            enableWeb3({
+                chainId: 80001,
+            });
+        }
+    }, [isAuthenticated]);
 
     useEffect(() => {
         createLayer();
