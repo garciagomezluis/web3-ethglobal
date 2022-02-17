@@ -42,16 +42,18 @@ export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({
     const atLowest = typeof minValue === 'number' && minValue === state;
     const atGreatest = typeof maxValue === 'number' && maxValue === state;
 
-    useEffect(() => {
-        warning(
-            !(typeof minValue === 'number' && realValue < minValue),
-            'Stepper value should be greater or equal than minValue',
-        );
-        warning(
-            !(typeof maxValue === 'number' && maxValue < realValue),
-            'Stepper value should be lower or equal than maxValue',
-        );
-    }, [realValue, minValue, maxValue]);
+    if (process.env.NODE_ENV !== 'production') {
+        useEffect(() => {
+            warning(
+                !(typeof minValue === 'number' && realValue < minValue),
+                'Stepper value should be greater or equal than minValue',
+            );
+            warning(
+                !(typeof maxValue === 'number' && maxValue < realValue),
+                'Stepper value should be lower or equal than maxValue',
+            );
+        }, [realValue, minValue, maxValue]);
+    }
 
     const increment = () => {
         const newValue = resolve(realValue + step, Math.min, maxValue);
