@@ -35,7 +35,7 @@ const useFileSelection: CustomHook<UseFileSelectionConfig, UseFileSelectionProps
         };
 
         inputRef.current = input;
-    }, []);
+    }, [accept, multiple, onSelect]);
 
     const open = () => {
         inputRef.current?.click();
