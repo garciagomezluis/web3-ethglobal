@@ -5,10 +5,11 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import GlobalProvider from './GlobalContext';
 import { MoralisProvider } from 'react-moralis';
+import theme from './theme';
 
 ReactDOM.render(
     <React.StrictMode>
-        <ChakraProvider>
+        <ChakraProvider theme={theme}>
             <MoralisProvider
                 initializeOnMount
                 appId="aNvLuGhU8CZQiNUPZ941VsKZOoswoI5K9BZyddC7"

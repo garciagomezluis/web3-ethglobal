@@ -9,7 +9,7 @@ import {
     validImageDimension,
 } from './Commons';
 
-import FileUpload from './FileUpload';
+import FileUpload from './components/FileUpload';
 import ImageViewer from './ImageViewer';
 import { GalleryType, GlobalContext, ImageViewerType } from './GlobalContext';
 
@@ -88,10 +88,7 @@ export const Gallery: FC<GalleryProps> = ({ images, id }) => {
                     </HStack>
                 </Box>
             </Box>
-            <FileUpload
-                disable={images.length === MAX_AMOUNT_IMAGES}
-                handleOnChange={handleOnChange}
-            />
+            <FileUpload disabled={images.length === MAX_AMOUNT_IMAGES} onSelect={handleOnChange} />
         </HStack>
     );
 };
