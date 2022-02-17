@@ -25,7 +25,7 @@ import {
     useDisclosure,
 } from '@chakra-ui/react';
 
-import Stepper from './Stepper';
+import Stepper from './components/Stepper';
 
 import { GlobalContext } from './GlobalContext';
 import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from './Commons';
@@ -88,7 +88,11 @@ const PropertiesModal: FC<any> = ({
                                 <option value="atmost">At most</option>
                             </Select>
                             <Spacer />
-                            <Stepper value={modalUsageValue} onChange={setModalUsageValue} />
+                            <Stepper
+                                initialValue={1}
+                                minValue={1}
+                                onChange={(v) => setModalUsageValue(v)}
+                            />
                         </HStack>
                     </VStack>
                 </ModalBody>

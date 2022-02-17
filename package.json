@@ -20,7 +20,8 @@
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-icons": "^4.3.1",
-        "react-moralis": "^1.2.2"
+        "react-moralis": "^1.2.2",
+        "warning": "^4.0.3"
     },
     "devDependencies": {
         "@luchio/eslint-config-vra-ts": "1.x",
