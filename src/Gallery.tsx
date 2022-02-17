@@ -37,10 +37,8 @@ export const Gallery: FC<GalleryProps> = ({ images, id }) => {
         }
     }, [error]);
 
-    const handleOnChange = async (event: any) => {
+    const handleOnChange = async (files: File[]) => {
         // console.log(...event.target.files);
-
-        const files = [...event.target.files];
         const urls = filesToURL(files);
         const dimensionOk = urls.map(validImageDimension);
         const allDimensionOk = (await Promise.all(dimensionOk)).every((x) => x);

@@ -88,11 +88,7 @@ const PropertiesModal: FC<any> = ({
                                 <option value="atmost">At most</option>
                             </Select>
                             <Spacer />
-                            <Stepper
-                                initialValue={1}
-                                minValue={1}
-                                onChange={(v) => setModalUsageValue(v)}
-                            />
+                            <Stepper initialValue={1} minValue={1} onChange={setModalUsageValue} />
                         </HStack>
                     </VStack>
                 </ModalBody>
