@@ -10,7 +10,7 @@ import {
 } from './Commons';
 
 import FileUpload from './components/FileUpload';
-import ImageViewer from './ImageViewer';
+import ImageViewer from './components/ImageViewer';
 import { GalleryType, GlobalContext, ImageViewerType } from './GlobalContext';
 
 export interface GalleryProps extends GalleryType {

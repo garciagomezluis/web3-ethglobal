@@ -1,14 +1,48 @@
 import { AiFillCloseCircle, AiFillEdit } from 'react-icons/ai';
 import { FC, useContext, useEffect, useState } from 'react';
 
-import { Alert, AlertIcon, Box, Button, Image, VStack } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box, Button, Image, VStack, useStyleConfig } from '@chakra-ui/react';
 
-import { useModal } from './components/Modal';
+import { useModal } from './Modal';
 
-import ImageConfigModal from './components/ImageConfigModal';
+import ImageConfigModal from './ImageConfigModal';
 
-import { GlobalContext } from './GlobalContext';
-import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from './Commons';
+import { GlobalContext } from '../GlobalContext';
+import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from '../Commons';
+
+const ImageOptions: FC<{
+    openModal: () => void;
+    remove: () => void;
+}> = ({ openModal, remove }) => {
+    const styles = useStyleConfig('ImageOptions', {
+        variant: 'default',
+    });
+
+    return (
+        <VStack __css={styles}>
+            <Button
+                colorScheme="pink"
+                leftIcon={<AiFillEdit />}
+                my="10px !important"
+                variant="solid"
+                w="70%"
+                onClick={openModal}
+            >
+                Edit properties
+            </Button>
+            <Button
+                colorScheme="pink"
+                leftIcon={<AiFillCloseCircle />}
+                my="10px !important"
+                variant="solid"
+                w="70%"
+                onClick={remove}
+            >
+                Remove
+            </Button>
+        </VStack>
+    );
+};
 
 export interface ImageViewerProps {
     file: File;
@@ -21,7 +55,7 @@ export interface ImageViewerProps {
 
 export const ImageViewer: FC<ImageViewerProps> = ({
     file,
-    onRemove,
+    onRemove: remove,
     id,
     traitValue,
     usageType,
@@ -29,9 +63,9 @@ export const ImageViewer: FC<ImageViewerProps> = ({
 }) => {
     const [missingNameError, setMissingNameError] = useState(false);
 
-    const { open, close: closeModal } = useModal();
-
     const { setFileTraitValue, setFileUsageType, setFileUsageValue } = useContext(GlobalContext);
+
+    const { open, close: closeModal } = useModal();
 
     const openModal = () => {
         open({
@@ -55,50 +89,23 @@ export const ImageViewer: FC<ImageViewerProps> = ({
 
     return (
         <Box h={HEIGHT_PX} pos="relative" w={WIDTH_PX}>
-            <Image h={HEIGHT_PX} pos="absolute" src={URL.createObjectURL(file)} w={WIDTH_PX} />
+            <Image pos="absolute" src={URL.createObjectURL(file)} />
+
             {!missingNameError && (
                 <Alert pos="absolute" status="success">
                     <AlertIcon />
                     {traitValue} - {getUsageText(usageType)} {usageValue}
                 </Alert>
             )}
+
             {missingNameError && (
                 <Alert pos="absolute" status="error">
                     <AlertIcon />
                     Images must have a name
                 </Alert>
             )}
-            <VStack
-                _hover={{ opacity: '1' }}
-                bg="rgba(100,100,100,.7)"
-                h={HEIGHT_PX}
-                justify="center"
-                opacity="0"
-                pos="absolute"
-                transition="all 0.2s ease-in"
-                w={WIDTH_PX}
-            >
-                <Button
-                    colorScheme="pink"
-                    leftIcon={<AiFillEdit />}
-                    my="10px !important"
-                    variant="solid"
-                    w="70%"
-                    onClick={openModal}
-                >
-                    Edit properties
-                </Button>
-                <Button
-                    colorScheme="pink"
-                    leftIcon={<AiFillCloseCircle />}
-                    my="10px !important"
-                    variant="solid"
-                    w="70%"
-                    onClick={onRemove}
-                >
-                    Remove
-                </Button>
-            </VStack>
+
+            <ImageOptions openModal={openModal} remove={remove} />
         </Box>
     );
 };
