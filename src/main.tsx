@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 
 import App from './App';
 import GlobalProvider from './GlobalContext';
+import { ModalProvider } from './components/Modal';
 import { MoralisProvider } from 'react-moralis';
 import theme from './theme';
 
@@ -16,7 +17,9 @@ ReactDOM.render(
                 serverUrl="https://olputa0a7acn.usemoralis.com:2053/server"
             >
                 <GlobalProvider>
-                    <App />
+                    <ModalProvider>
+                        <App />
+                    </ModalProvider>
                 </GlobalProvider>
             </MoralisProvider>
         </ChakraProvider>

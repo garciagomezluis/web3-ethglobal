@@ -297,15 +297,8 @@ function App() {
 
     const { isOpen: isMintOpen, onOpen: onMintOpen, onClose: onMintClose } = useDisclosure();
 
-    const {
-        authenticate,
-        isAuthenticated,
-        logout,
-        enableWeb3,
-        web3EnableError,
-        isWeb3Enabled,
-        isWeb3EnableLoading,
-    } = useMoralis();
+    const { logout, enableWeb3, web3EnableError, isWeb3Enabled, isWeb3EnableLoading } =
+        useMoralis();
 
     const { isUploading } = useMoralisFile();
 

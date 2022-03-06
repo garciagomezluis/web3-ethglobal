@@ -11,21 +11,17 @@ import {
     HStack,
     Image,
     Input,
-    Modal,
     ModalBody,
-    ModalCloseButton,
-    ModalContent,
     ModalFooter,
     ModalHeader,
-    ModalOverlay,
     Select,
     Spacer,
     Text,
     VStack,
-    useDisclosure,
 } from '@chakra-ui/react';
 
 import Stepper from './components/Stepper';
+import { useModal } from './components/Modal';
 
 import { GlobalContext } from './GlobalContext';
 import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from './Commons';
@@ -40,7 +36,6 @@ export interface ImageViewerProps {
 }
 
 const PropertiesModal: FC<any> = ({
-    isOpen,
     onClose,
     onTraitChange,
     onUsageTypeChange,
@@ -61,48 +56,44 @@ const PropertiesModal: FC<any> = ({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-                <ModalHeader>Trait properties</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                    <FormControl>
-                        <FormLabel>Trait</FormLabel>
-                        <Input
-                            placeholder="Blue Sky"
-                            value={modalTrait}
-                            onChange={(e) => setModalTrait(e.target.value)}
-                        />
-                    </FormControl>
+        <>
+            <ModalHeader>Trait properties</ModalHeader>
+            <ModalBody>
+                <FormControl>
+                    <FormLabel>Trait</FormLabel>
+                    <Input
+                        placeholder="Blue Sky"
+                        value={modalTrait}
+                        onChange={(e) => setModalTrait(e.target.value)}
+                    />
+                </FormControl>
 
-                    <VStack align="flex-start" mt="5" w="full">
-                        <Text>Usage</Text>
-                        <HStack align="center" mt={4} w="full">
-                            <Select
-                                value={modalUsageType}
-                                onChange={(e) => setModalUsageType(e.target.value)}
-                            >
-                                <option value="atleast">At least</option>
-                                <option value="exact">Exact</option>
-                                <option value="atmost">At most</option>
-                            </Select>
-                            <Spacer />
-                            <Stepper initialValue={1} minValue={1} onChange={setModalUsageValue} />
-                        </HStack>
-                    </VStack>
-                </ModalBody>
+                <VStack align="flex-start" mt="5" w="full">
+                    <Text>Usage</Text>
+                    <HStack align="center" mt={4} w="full">
+                        <Select
+                            value={modalUsageType}
+                            onChange={(e) => setModalUsageType(e.target.value)}
+                        >
+                            <option value="atleast">At least</option>
+                            <option value="exact">Exact</option>
+                            <option value="atmost">At most</option>
+                        </Select>
+                        <Spacer />
+                        <Stepper initialValue={1} minValue={1} onChange={setModalUsageValue} />
+                    </HStack>
+                </VStack>
+            </ModalBody>
 
-                <ModalFooter>
-                    <Button colorScheme="pink" mr={3} onClick={onClose}>
-                        Close
-                    </Button>
-                    <Button variant="ghost" onClick={onSaveClick}>
-                        Save
-                    </Button>
-                </ModalFooter>
-            </ModalContent>
-        </Modal>
+            <ModalFooter>
+                <Button colorScheme="pink" mr={3} onClick={onClose}>
+                    Close
+                </Button>
+                <Button variant="ghost" onClick={onSaveClick}>
+                    Save
+                </Button>
+            </ModalFooter>
+        </>
     );
 };
 
@@ -114,11 +105,27 @@ export const ImageViewer: FC<ImageViewerProps> = ({
     usageType,
     usageValue,
 }) => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { open, close: closeModal } = useModal();
 
     const { setFileTraitValue, setFileUsageType, setFileUsageValue } = useContext(GlobalContext);
 
     const [showStateOk, setShowStateOk] = useState(false);
+
+    const openModal = () => {
+        open({
+            element: PropertiesModal,
+            props: {
+                trait: traitValue,
+                usageType,
+                usageValue,
+                onClose: closeModal,
+                onTraitChange: (t: string) => setFileTraitValue(id, file, t),
+                onUsageTypeChange: (t: UsageType) => setFileUsageType(id, file, t),
+                onUsageValueChange: (t: number) => setFileUsageValue(id, file, t),
+            },
+            locked: false,
+        });
+    };
 
     useEffect(() => {
         if (traitValue !== '') {
@@ -128,16 +135,6 @@ export const ImageViewer: FC<ImageViewerProps> = ({
 
     return (
         <Box h={HEIGHT_PX} pos="relative" w={WIDTH_PX}>
-            <PropertiesModal
-                isOpen={isOpen}
-                trait={traitValue}
-                usageType={usageType}
-                usageValue={usageValue}
-                onClose={onClose}
-                onTraitChange={(t: string) => setFileTraitValue(id, file, t)}
-                onUsageTypeChange={(t: UsageType) => setFileUsageType(id, file, t)}
-                onUsageValueChange={(t: number) => setFileUsageValue(id, file, t)}
-            />
             <Image h={HEIGHT_PX} pos="absolute" src={URL.createObjectURL(file)} w={WIDTH_PX} />
             {showStateOk && (
                 <Alert pos="absolute" status="success">
@@ -161,7 +158,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
                     my="10px !important"
                     variant="solid"
                     w="70%"
-                    onClick={onOpen}
+                    onClick={openModal}
                 >
                     Edit properties
                 </Button>
