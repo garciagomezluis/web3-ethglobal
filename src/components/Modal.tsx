@@ -10,7 +10,7 @@ import {
 import { FC, createContext, useContext, useState } from 'react';
 
 type ModalConfigType = {
-    element: FC | null;
+    element: FC<any> | null;
     props: any;
     locked?: boolean;
 };
