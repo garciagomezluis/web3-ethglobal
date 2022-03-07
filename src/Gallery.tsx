@@ -18,7 +18,7 @@ export interface GalleryProps extends GalleryType {
 }
 
 export const Gallery: FC<GalleryProps> = ({ images, id }) => {
-    const { setFiles, removeFile } = useContext(GlobalContext);
+    const { setFiles } = useContext(GlobalContext);
 
     const [error, setError] = useState('');
     const toast = useToast();
@@ -69,22 +69,23 @@ export const Gallery: FC<GalleryProps> = ({ images, id }) => {
             <Box h="300px" maxW="calc(100% - 320px)" overflowY="hidden">
                 <Box overflowX="scroll" pb="10" w="full">
                     <HStack pos="relative">
-                        {images.map((i: ImageViewerType) => {
-                            const url = URL.createObjectURL(i.file);
+                        {images.map(
+                            ({ file, traitValue, usageType, usageValue }: ImageViewerType) => {
+                                const url = URL.createObjectURL(file);
 
-                            return (
-                                <Box key={url} flex="1" mx="5px !important">
-                                    <ImageViewer
-                                        file={i.file}
-                                        id={id}
-                                        traitValue={i.traitValue}
-                                        usageType={i.usageType}
-                                        usageValue={i.usageValue}
-                                        onRemove={() => removeFile(id, i.file)}
-                                    />
-                                </Box>
-                            );
-                        })}
+                                return (
+                                    <Box key={url} flex="1" mx="5px !important">
+                                        <ImageViewer
+                                            file={file}
+                                            id={id}
+                                            name={traitValue}
+                                            usageType={usageType}
+                                            usageValue={usageValue}
+                                        />
+                                    </Box>
+                                );
+                            },
+                        )}
                     </HStack>
                 </Box>
             </Box>

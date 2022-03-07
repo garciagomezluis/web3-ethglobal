@@ -45,25 +45,18 @@ const ImageOptions: FC<{
 };
 
 export interface ImageViewerProps {
-    file: File;
-    onRemove: any;
     id: string;
-    traitValue: string;
+    file: File;
+    name: string;
     usageType: UsageType;
     usageValue: number;
 }
 
-export const ImageViewer: FC<ImageViewerProps> = ({
-    file,
-    onRemove: remove,
-    id,
-    traitValue,
-    usageType,
-    usageValue,
-}) => {
+export const ImageViewer: FC<ImageViewerProps> = ({ id, file, name, usageType, usageValue }) => {
     const [missingNameError, setMissingNameError] = useState(false);
 
-    const { setFileTraitValue, setFileUsageType, setFileUsageValue } = useContext(GlobalContext);
+    const { setFileTraitValue, setFileUsageType, setFileUsageValue, removeFile } =
+        useContext(GlobalContext);
 
     const { open, close: closeModal } = useModal();
 
@@ -75,7 +68,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
                 onChangeName: (t: string) => setFileTraitValue(id, file, t),
                 onChangeUsageType: (t: UsageType) => setFileUsageType(id, file, t),
                 onChangeUsageValue: (t: number) => setFileUsageValue(id, file, t),
-                defaultName: traitValue,
+                defaultName: name,
                 defaultUsageType: usageType,
                 defaultUsageValue: usageValue,
             },
@@ -83,9 +76,13 @@ export const ImageViewer: FC<ImageViewerProps> = ({
         });
     };
 
+    const remove = () => {
+        removeFile(id, file);
+    };
+
     useEffect(() => {
-        setMissingNameError(traitValue === '');
-    }, [traitValue]);
+        setMissingNameError(name === '');
+    }, [name]);
 
     return (
         <Box h={HEIGHT_PX} pos="relative" w={WIDTH_PX}>
@@ -94,7 +91,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({
             {!missingNameError && (
                 <Alert pos="absolute" status="success">
                     <AlertIcon />
-                    {traitValue} - {getUsageText(usageType)} {usageValue}
+                    {name} - {getUsageText(usageType)} {usageValue}
                 </Alert>
             )}
 
