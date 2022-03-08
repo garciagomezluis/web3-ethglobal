@@ -42,6 +42,8 @@ export const validImageDimension = async (url: string) => {
         img.onload = () => {
             if (img.naturalWidth === WIDTH_PX && img.naturalHeight === HEIGHT_PX) {
                 resolve(true);
+
+                return;
             }
             resolve(false);
         };
