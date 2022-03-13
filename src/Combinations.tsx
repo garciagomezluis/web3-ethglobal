@@ -2,7 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
-import { LayerType } from './GlobalContext';
+import { GlobalLayerConfig } from './GlobalContext';
 import { UsageType, getRandomInt } from './Commons';
 
 interface Candidate {
@@ -18,18 +18,18 @@ interface ControlMap {
     [k: string]: UsageMap;
 }
 
-export const checkLayerCannotBeEmpty = (layers: LayerType[]) => {
+export const checkLayerCannotBeEmpty = (layers: GlobalLayerConfig[]) => {
     const failingLayers = layers
-        .filter((layer) => layer.gallery.images.length === 0)
+        .filter((layer) => layer.images.length === 0)
         .map((layer) => layer.name);
 
     return failingLayers;
 };
 
-export const checkAtLeastByLayer = (layers: LayerType[]) => {
+export const checkAtLeastByLayer = (layers: GlobalLayerConfig[]) => {
     const failingLayers = layers
         .filter((layer) => {
-            const amountOK = layer.gallery.images.filter((image) => {
+            const amountOK = layer.images.filter((image) => {
                 return image.usageType === 'atleast';
             }).length;
 
@@ -40,14 +40,14 @@ export const checkAtLeastByLayer = (layers: LayerType[]) => {
     return failingLayers;
 };
 
-export const checkAllImagesWithData = (layers: LayerType[]) => {
+export const checkAllImagesWithData = (layers: GlobalLayerConfig[]) => {
     const failingLayers: any = [];
 
     for (let i = 0; i < layers.length; i++) {
         const currentLayer = layers[i];
 
-        for (let j = 0; j < currentLayer.gallery.images.length; j++) {
-            if (currentLayer.gallery.images[j].traitValue === '') {
+        for (let j = 0; j < currentLayer.images.length; j++) {
+            if (currentLayer.images[j].name === '') {
                 // failingLayers[i] = failingLayers[i] || [];
                 // failingLayers[i].push(j);
 
@@ -59,12 +59,12 @@ export const checkAllImagesWithData = (layers: LayerType[]) => {
     return failingLayers;
 };
 
-const initializeMap = (layers: LayerType[]) => {
+const initializeMap = (layers: GlobalLayerConfig[]) => {
     const map: ControlMap = {};
 
     for (let i = 0; i < layers.length; i++) {
-        for (let j = 0; j < layers[i].gallery.images.length; j++) {
-            const image = layers[i].gallery.images[j];
+        for (let j = 0; j < layers[i].images.length; j++) {
+            const image = layers[i].images[j];
 
             map[image.usageType] = map[image.usageType] || {};
 
@@ -105,18 +105,18 @@ const finishedMapAtLeast = (map: ControlMap) => {
     return atLeastDone;
 };
 
-const getCombination = (layers: LayerType[]) => {
+const getCombination = (layers: GlobalLayerConfig[]) => {
     return layers.map((layer) => {
-        const rnd = getRandomInt(0, layer.gallery.images.length - 1);
+        const rnd = getRandomInt(0, layer.images.length - 1);
 
         return {
             idx: rnd,
-            type: layer.gallery.images[rnd].usageType,
+            type: layer.images[rnd].usageType,
         } as Candidate;
     });
 };
 
-export const getAllCombiations = (layers: LayerType[]) => {
+export const getAllCombiations = (layers: GlobalLayerConfig[]) => {
     const map = initializeMap(layers);
 
     const combinations: string[] = [];
@@ -161,13 +161,17 @@ const saveCombinationIfValid = (
     return valid;
 };
 
-export const getTraitInsights = (combinations: string[], layers: LayerType[]) => {
+export const getTraitInsights = (combinations: string[], layers: GlobalLayerConfig[]) => {
     return Array(layers.length)
         .fill('')
         .map((_, i) => getLayerInsights(combinations, layers, i));
 };
 
-const getLayerInsights = (combinations: string[], layers: LayerType[], layerIndex: number) => {
+const getLayerInsights = (
+    combinations: string[],
+    layers: GlobalLayerConfig[],
+    layerIndex: number,
+) => {
     const traitsUsages: any = {
         name: layers[layerIndex].name,
         traits: {},
@@ -177,7 +181,7 @@ const getLayerInsights = (combinations: string[], layers: LayerType[], layerInde
         const traitIndex = Number(combination[layerIndex]);
 
         traitsUsages.traits[traitIndex] = traitsUsages.traits[traitIndex] || {
-            name: layers[layerIndex].gallery.images[traitIndex].traitValue,
+            name: layers[layerIndex].images[traitIndex].usageValue,
             usage: 0,
         };
         traitsUsages.traits[traitIndex].usage++;
@@ -192,11 +196,11 @@ const getLayerInsights = (combinations: string[], layers: LayerType[], layerInde
     return traitsUsages;
 };
 
-export const getCombinationsData = (combinations: string[], layers: LayerType[]) => {
+export const getCombinationsData = (combinations: string[], layers: GlobalLayerConfig[]) => {
     return combinations.map((c) => combinationToData(c, layers));
 };
 
-const combinationToData = (combination: string, layers: LayerType[]) => {
+const combinationToData = (combination: string, layers: GlobalLayerConfig[]) => {
     // if (combination.length !== layers.length) return;
 
     const data = [];
@@ -204,7 +208,7 @@ const combinationToData = (combination: string, layers: LayerType[]) => {
     for (let i = 0; i < layers.length; i++) {
         data.push({
             idx: Number(combination[i]),
-            ...layers[i].gallery.images[Number(combination[i])],
+            ...layers[i].images[Number(combination[i])],
         });
     }
 

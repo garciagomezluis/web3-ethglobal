@@ -31,7 +31,11 @@ export const union = (obj1: any[], obj2: any[], key: string) => {
 
     return [...diff, ...obj2];
 };
-export const validImageDimension = async (url: string) => {
+export const validImageDimension = async (
+    url: string,
+    width: number = WIDTH_PX,
+    height: number = HEIGHT_PX,
+) => {
     const img: HTMLImageElement = document.createElement('img');
 
     img.src = url;
@@ -40,7 +44,7 @@ export const validImageDimension = async (url: string) => {
         img.onerror = reject;
 
         img.onload = () => {
-            if (img.naturalWidth === WIDTH_PX && img.naturalHeight === HEIGHT_PX) {
+            if (img.naturalWidth === width && img.naturalHeight === height) {
                 resolve(true);
 
                 return;

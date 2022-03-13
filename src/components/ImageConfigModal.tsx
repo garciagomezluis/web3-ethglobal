@@ -19,7 +19,16 @@ import Stepper from './Stepper';
 
 import { UsageType } from '../Commons';
 
-const ConfigForm: FC<any> = ({
+interface ConfigFormProps {
+    name: string;
+    setName: (name: string) => void;
+    usageType: UsageType;
+    setUsageType: (type: UsageType) => void;
+    usageValue: number;
+    setUsageValue: (value: number) => void;
+}
+
+const ConfigForm: FC<ConfigFormProps> = ({
     name,
     setName,
     usageType,
@@ -41,7 +50,10 @@ const ConfigForm: FC<any> = ({
             <VStack align="flex-start" mt="5" w="full">
                 <Text>Usage</Text>
                 <HStack align="center" mt={4} w="full">
-                    <Select value={usageType} onChange={(e) => setUsageType(e.target.value)}>
+                    <Select
+                        value={usageType}
+                        onChange={(e) => setUsageType(e.target.value as UsageType)}
+                    >
                         <option value="atleast">At least</option>
                         <option value="exact">Exact</option>
                         <option value="atmost">At most</option>

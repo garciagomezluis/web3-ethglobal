@@ -4,17 +4,14 @@ import { useCallback } from 'react';
 import { CustomHook } from './utils';
 import { useToast } from '@chakra-ui/react';
 
-export interface UseErrorConfig {
-    showErrorTitle?: string;
-}
-
-export interface UseErrorProps {
-    showError: (error: string) => void;
-}
-
-export const useError: CustomHook<UseErrorConfig, UseErrorProps> = ({
-    showErrorTitle = 'Error',
-}) => {
+export const useError: CustomHook<
+    {
+        showErrorTitle?: string;
+    },
+    {
+        showError: (error: string) => void;
+    }
+> = ({ showErrorTitle = 'Error' }) => {
     const toast = useToast();
 
     const showError = useCallback(

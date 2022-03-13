@@ -1,68 +1,21 @@
 import { Box, HStack, IconButton, Image, Spacer, Text, VStack } from '@chakra-ui/react';
-import { FC, useContext, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 
 import { BsTrash } from 'react-icons/bs';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
 
-import mergeImages from 'merge-images';
-
 import Trait from './Trait';
-import { getNewID } from './Commons';
-import { CombinationData, GlobalContext } from './GlobalContext';
 
-export const Preview: FC<any> = ({ b64Images, setB64Images, attrs, setAttrs }) => {
-    const { combinations, insights } = useContext(GlobalContext);
-
+export const Preview: FC<any> = ({ b64Images, attrs }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const imageRef = useRef<HTMLImageElement>(null);
-
-    const getBase64Image = async (combination: CombinationData[]) => {
-        const names = [...combination.map((image) => URL.createObjectURL(image.file))];
-
-        const b64 = await mergeImages(names);
-
-        return b64;
-    };
 
     useEffect(() => {
         if (imageRef.current !== null) {
             imageRef.current.src = b64Images[selectedIndex];
         }
     }, [selectedIndex, b64Images]);
-
-    useEffect(() => {
-        // Promise.all([...combinations.map(getBase64Image)]).then(setB64Images);
-
-        Promise.all([
-            ...combinations.map(async (combination: CombinationData[]) => {
-                return {
-                    base64: await getBase64Image(combination),
-                    attrs: combination.map((image, layerIndex) => getTrait(layerIndex, image.idx)),
-                };
-            }),
-        ]).then((results) => {
-            const abase64 = [];
-            const aattrs = [];
-
-            for (let i = 0; i < results.length; i++) {
-                abase64.push(results[i].base64);
-                aattrs.push(results[i].attrs);
-            }
-
-            setB64Images(abase64);
-            setAttrs(aattrs);
-        });
-    }, []);
-
-    const getTrait = (layerIndex: number, traitIndex: number) => {
-        return {
-            name: insights[layerIndex].name,
-            value: insights[layerIndex].traits[traitIndex].name,
-            usage: insights[layerIndex].traits[traitIndex].usage,
-            id: getNewID(),
-        };
-    };
 
     return (
         <VStack justify="center">
@@ -75,7 +28,7 @@ export const Preview: FC<any> = ({ b64Images, setB64Images, attrs, setAttrs }) =
                     textAlign="right"
                     w="full"
                 >
-                    {selectedIndex + 1}/{combinations.length}
+                    {selectedIndex + 1}/{b64Images.length}
                 </Text>
                 <Image ref={imageRef} boxSize="300px" />
                 <HStack justify="center" w="full">
@@ -97,7 +50,7 @@ export const Preview: FC<any> = ({ b64Images, setB64Images, attrs, setAttrs }) =
                     <IconButton
                         aria-label="next"
                         colorScheme="pink"
-                        disabled={selectedIndex === combinations.length - 1}
+                        disabled={selectedIndex === b64Images.length - 1}
                         icon={<AiOutlineArrowRight />}
                         onClick={() => setSelectedIndex((prev) => prev + 1)}
                     />

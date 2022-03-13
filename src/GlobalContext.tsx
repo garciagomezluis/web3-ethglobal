@@ -2,7 +2,7 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-unused-vars */
-import { FC, PropsWithChildren, createContext, useEffect, useState } from 'react';
+import { FC, createContext, useContext, useEffect, useState } from 'react';
 import {
     checkAllImagesWithData,
     checkAtLeastByLayer,
@@ -12,42 +12,19 @@ import {
     getTraitInsights,
 } from './Combinations';
 
-import { UpDownType, UsageType, getNewID } from './Commons';
+import { UsageType } from './Commons';
 
-interface GlobalProviderProps {}
-
-export interface CombinationData extends ImageViewerType {
+export interface CombinationData extends ImageConfig {
     idx: number;
 }
 
-export type ImageViewerType = {
-    file: File;
-    traitValue: string;
-    usageType: UsageType;
-    usageValue: number;
-};
-
-export type GalleryType = {
-    images: ImageViewerType[];
-};
-
 export type LayerType = {
     id: string;
-    name: string;
-    gallery: GalleryType;
 };
 
 type GlobalContextType = {
-    createLayer: () => void;
-    getLayers: () => LayerType[];
-    setLayerName: (id: string, name: string) => void;
-    removeLayer: (id: string) => void;
-    moveLayer: (id: string, direction: UpDownType) => void;
-    setFiles: (id: string, files: File[]) => void;
-    removeFile: (id: string, file: File) => void;
-    setFileTraitValue: (id: string, file: File, value: string) => void;
-    setFileUsageType: (id: string, file: File, value: UsageType) => void;
-    setFileUsageValue: (id: string, file: File, value: number) => void;
+    updateLayers: (layers: LayerConfig[]) => void;
+    updateImage: (layerIndex: number, imageIndex: number, image: ImageConfig) => void;
     calculateCombinations: () => boolean;
     combinations: CombinationData[][];
     generalError: string;
@@ -55,16 +32,8 @@ type GlobalContextType = {
 };
 
 const defaultContext: GlobalContextType = {
-    createLayer: () => {},
-    getLayers: () => [],
-    setLayerName: () => {},
-    removeLayer: () => {},
-    moveLayer: () => {},
-    setFiles: () => {},
-    removeFile: () => {},
-    setFileTraitValue: () => {},
-    setFileUsageType: () => {},
-    setFileUsageValue: () => {},
+    updateLayers: () => {},
+    updateImage: () => {},
     calculateCombinations: () => false,
     combinations: [],
     generalError: '',
@@ -73,8 +42,52 @@ const defaultContext: GlobalContextType = {
 
 export const GlobalContext = createContext<GlobalContextType>(defaultContext);
 
-export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ children }) => {
-    const [layers, setLayers] = useState<LayerType[]>([]);
+export const useGlobalLayers = () => {
+    const { updateLayers } = useContext(GlobalContext);
+
+    return { updateLayers };
+};
+
+export const useGlobalImage = () => {
+    const { updateImage } = useContext(GlobalContext);
+
+    return { updateImage };
+};
+
+export type LayerConfig = {
+    id: string;
+    name: string;
+};
+
+export type ImageConfig = {
+    file: File;
+    name: string;
+    usageType: UsageType;
+    usageValue: number;
+};
+
+export type GlobalLayerConfig = LayerConfig & {
+    images: ImageConfig[];
+};
+
+export const GlobalProvider: FC = ({ children }) => {
+    const [layersConfig, setLayersConfig] = useState<GlobalLayerConfig[]>([]);
+
+    const updateLayers = (newLayers: LayerConfig[]) =>
+        setLayersConfig(
+            newLayers.map((conf, i) => {
+                return { ...{ id: 0, name: '', images: [] }, ...conf, ...newLayers[i] };
+            }),
+        );
+
+    const updateImage = (layerIndex: number, imageIndex: number, newImage: ImageConfig) => {
+        setLayersConfig((prevLayersConfig) => {
+            prevLayersConfig[layerIndex].images[imageIndex] = newImage;
+
+            return prevLayersConfig;
+        });
+    };
+
     const [combinations, setCombinations] = useState<CombinationData[][]>([]);
     const [generalError, setGeneralError] = useState('');
     const [insights, setInsights] = useState({});
@@ -83,173 +96,13 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
         setCombinations([]);
         setGeneralError('');
         setInsights({});
-    }, [layers]);
-
-    const createLayer = () => {
-        setLayers((prev) => [
-            ...prev,
-            {
-                id: getNewID(),
-                name: `Layer name #${prev.length}`,
-                gallery: { images: [] },
-            },
-        ]);
-    };
-
-    const getLayers = () => {
-        return layers;
-    };
-
-    const setLayerName = (id: string, name: string) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    return {
-                        ...layer,
-                        name,
-                    };
-                }
-
-                return layer;
-            });
-        });
-    };
-
-    const removeLayer = (id: string) => {
-        setLayers((prev) => prev.filter((e) => e.id !== id));
-    };
-
-    const moveLayer = (id: string, direction: UpDownType) => {
-        setLayers((prev) => {
-            const aux = [...prev];
-
-            for (let i = 0; i < aux.length; i++) {
-                const j = direction === 'down' ? i + 1 : i - 1;
-
-                if (aux[i].id === id) {
-                    const auxA = aux[i];
-
-                    aux[i] = aux[j];
-                    aux[j] = auxA;
-
-                    break;
-                }
-            }
-
-            return [...aux];
-        });
-    };
-
-    const setFiles = (id: string, files: File[]) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    const nonLoadedFiles: File[] = files.filter((newFile) => {
-                        return (
-                            typeof layer.gallery.images.find(
-                                ({ file }) => file.name === newFile.name,
-                            ) === 'undefined'
-                        );
-                    });
-
-                    const nonLoadedImages: ImageViewerType[] = nonLoadedFiles.map((f) => {
-                        return {
-                            file: f,
-                            traitValue: f.name.replace('.png', ''),
-                            usageType: 'atleast',
-                            usageValue: 1,
-                        };
-                    });
-
-                    return {
-                        ...layer,
-                        gallery: {
-                            images: [...layer.gallery.images, ...nonLoadedImages],
-                        },
-                    };
-                }
-
-                return layer;
-            });
-        });
-    };
-
-    const removeFile = (id: string, file: File) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    return {
-                        ...layer,
-                        gallery: {
-                            images: layer.gallery.images.filter((i) => i.file.name !== file.name),
-                        },
-                    };
-                }
-
-                return layer;
-            });
-        });
-    };
-
-    const setFileTraitValue = (id: string, file: File, value: string) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    layer.gallery.images = layer.gallery.images.map((i) => {
-                        if (i.file.name === file.name) {
-                            i.traitValue = value;
-                        }
-
-                        return i;
-                    });
-                }
-
-                return layer;
-            });
-        });
-    };
-
-    const setFileUsageType = (id: string, file: File, value: UsageType) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    layer.gallery.images = layer.gallery.images.map((i) => {
-                        if (i.file.name === file.name) {
-                            i.usageType = value;
-                        }
-
-                        return i;
-                    });
-                }
-
-                return layer;
-            });
-        });
-    };
-
-    const setFileUsageValue = (id: string, file: File, value: number) => {
-        setLayers((prev) => {
-            return prev.map((layer) => {
-                if (layer.id === id) {
-                    layer.gallery.images = layer.gallery.images.map((i) => {
-                        if (i.file.name === file.name) {
-                            i.usageValue = value;
-                        }
-
-                        return i;
-                    });
-                }
-
-                return layer;
-            });
-        });
-    };
+    }, [layersConfig]);
 
     const calculateCombinations = () => {
         // validations
         // layers cannot be empty
 
-        const failingEmpty = checkLayerCannotBeEmpty(layers);
+        const failingEmpty = checkLayerCannotBeEmpty(layersConfig);
 
         if (failingEmpty.length !== 0) {
             setGeneralError(
@@ -263,7 +116,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
 
         // all layers must have at least one image with "at least" option set
 
-        const failingAtLeast = checkAtLeastByLayer(layers);
+        const failingAtLeast = checkAtLeastByLayer(layersConfig);
 
         if (failingAtLeast.length !== 0) {
             setGeneralError(
@@ -277,7 +130,7 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
 
         // all images must have a trait description
 
-        const failingData = checkAllImagesWithData(layers);
+        const failingData = checkAllImagesWithData(layersConfig);
 
         if (failingData.length > 0) {
             setGeneralError(
@@ -289,11 +142,11 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
             return false;
         }
 
-        const combs = getAllCombiations(layers);
+        const combs = getAllCombiations(layersConfig);
 
-        setCombinations(getCombinationsData(combs, layers));
+        setCombinations(getCombinationsData(combs, layersConfig));
 
-        setInsights(getTraitInsights(combs, layers));
+        setInsights(getTraitInsights(combs, layersConfig));
 
         return true;
     };
@@ -301,16 +154,8 @@ export const GlobalProvider: FC<PropsWithChildren<GlobalProviderProps>> = ({ chi
     return (
         <GlobalContext.Provider
             value={{
-                createLayer,
-                getLayers,
-                setLayerName,
-                removeLayer,
-                moveLayer,
-                setFiles,
-                removeFile,
-                setFileTraitValue,
-                setFileUsageType,
-                setFileUsageValue,
+                updateLayers,
+                updateImage,
                 calculateCombinations,
                 combinations,
                 generalError,

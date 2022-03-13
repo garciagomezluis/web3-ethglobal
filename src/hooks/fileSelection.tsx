@@ -2,22 +2,17 @@
 import { CustomHook } from './utils';
 import { useEffect, useRef, useState } from 'react';
 
-export interface UseFileSelectionConfig {
-    accept: string;
-    multiple?: boolean;
-    onSelect?: (files: File[]) => void;
-}
-
-export interface UseFileSelectionProps {
-    files: File[];
-    open: () => void;
-}
-
-const useFileSelection: CustomHook<UseFileSelectionConfig, UseFileSelectionProps> = ({
-    accept,
-    multiple = false,
-    onSelect = () => {},
-}) => {
+const useFileSelection: CustomHook<
+    {
+        accept: string;
+        multiple?: boolean;
+        onSelect?: (files: File[]) => void;
+    },
+    {
+        files: File[];
+        open: () => void;
+    }
+> = ({ accept, multiple = false, onSelect = () => {} }) => {
     const [files, setFiles] = useState<File[]>([]);
     const inputRef = useRef<HTMLInputElement>();
 

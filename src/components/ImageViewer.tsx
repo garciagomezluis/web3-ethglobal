@@ -1,5 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { AiFillCloseCircle, AiFillEdit } from 'react-icons/ai';
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 
 import { Alert, AlertIcon, Box, Button, Image, VStack, useStyleConfig } from '@chakra-ui/react';
 
@@ -7,7 +8,7 @@ import { useModal } from './Modal';
 
 import ImageConfigModal from './ImageConfigModal';
 
-import { GlobalContext } from '../GlobalContext';
+import { useGlobalImage } from '../GlobalContext';
 import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from '../Commons';
 
 const ImageOptions: FC<{
@@ -45,39 +46,48 @@ const ImageOptions: FC<{
 };
 
 export interface ImageViewerProps {
-    id: string;
     file: File;
-    name: string;
-    usageType: UsageType;
-    usageValue: number;
+    removeFile: () => void;
+    index: number;
+    layerIndex: number;
 }
 
-export const ImageViewer: FC<ImageViewerProps> = ({ id, file, name, usageType, usageValue }) => {
+export const ImageViewer: FC<ImageViewerProps> = ({ file, removeFile, layerIndex, index }) => {
+    // TODO: update contexto global. setFileTraitValue, setFileUsageType, setFileUsageValue
+
     const [missingNameError, setMissingNameError] = useState(false);
 
-    const { setFileTraitValue, setFileUsageType, setFileUsageValue, removeFile } =
-        useContext(GlobalContext);
+    const [name, setName] = useState(file.name);
+    const [usageType, setUsageType] = useState<UsageType>('atleast');
+    const [usageValue, setUsageValue] = useState(1);
 
     const { open, close: closeModal } = useModal();
+
+    const { updateImage } = useGlobalImage();
+
+    useEffect(() => {
+        updateImage(layerIndex, index, {
+            file,
+            name,
+            usageType,
+            usageValue,
+        });
+    }, [file, name, usageType, usageValue]);
 
     const openModal = () => {
         open({
             element: ImageConfigModal,
             props: {
                 onClose: closeModal,
-                onChangeName: (t: string) => setFileTraitValue(id, file, t),
-                onChangeUsageType: (t: UsageType) => setFileUsageType(id, file, t),
-                onChangeUsageValue: (t: number) => setFileUsageValue(id, file, t),
+                onChangeName: setName,
+                onChangeUsageType: setUsageType,
+                onChangeUsageValue: setUsageValue,
                 defaultName: name,
                 defaultUsageType: usageType,
                 defaultUsageValue: usageValue,
             },
             locked: false,
         });
-    };
-
-    const remove = () => {
-        removeFile(id, file);
     };
 
     useEffect(() => {
@@ -102,7 +112,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({ id, file, name, usageType, u
                 </Alert>
             )}
 
-            <ImageOptions openModal={openModal} remove={remove} />
+            <ImageOptions openModal={openModal} remove={removeFile} />
         </Box>
     );
 };
