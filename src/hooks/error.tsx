@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useCallback } from 'react';
 
-import { CustomHook } from './utils';
+import { CustomHook } from '../utils';
 import { useToast } from '@chakra-ui/react';
 
 export const useError: CustomHook<

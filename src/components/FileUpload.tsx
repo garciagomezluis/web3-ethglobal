@@ -4,7 +4,7 @@ import { FC } from 'react';
 
 import useFileSelection from '../hooks/fileSelection';
 import { Box, Text, useStyleConfig } from '@chakra-ui/react';
-import { HEIGHT_PX, MAX_AMOUNT_IMAGES, WIDTH_PX } from '../Commons';
+import { HEIGHT_PX, MAX_AMOUNT_IMAGES, WIDTH_PX } from '../utils';
 
 interface FileUploadProps {
     onSelect?: (files: File[]) => void;

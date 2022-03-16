@@ -1,16 +1,50 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-restricted-syntax */
+
+export type UsageType = 'atmost' | 'atleast' | 'exact';
+
+export type UpDownType = 'up' | 'down';
+
+export type CustomHook<P, Q> = (p: P) => Q;
+
+export type LayerType = {
+    id: string;
+};
+
+export type LayerConfig = LayerType & {
+    name: string;
+};
+
+export type ImageConfig = {
+    file: File;
+    name: string;
+    usageType: UsageType;
+    usageValue: number;
+};
+
+export type TraitInfo = {
+    name: string;
+    value: string;
+    usage: number;
+    id: string;
+};
+
+export type GlobalLayerConfig = LayerConfig & {
+    images: ImageConfig[];
+};
+
+export const MAX_AMOUNT_IMAGES = 10;
 export const WIDTH_PX = 300;
 export const HEIGHT_PX = 300;
-export const MAX_AMOUNT_IMAGES = 10;
-export type UsageType = 'atmost' | 'atleast' | 'exact';
-export type UpDownType = 'up' | 'down';
+
 export const getUsageText = (usageType: UsageType) => {
     if (usageType === 'atleast') return 'At least';
     if (usageType === 'atmost') return 'At most';
 
     return 'Exact';
 };
+
 export const union = (obj1: any[], obj2: any[], key: string) => {
     const diff = [];
 
@@ -31,6 +65,7 @@ export const union = (obj1: any[], obj2: any[], key: string) => {
 
     return [...diff, ...obj2];
 };
+
 export const validImageDimension = async (
     url: string,
     width: number = WIDTH_PX,
@@ -53,12 +88,5 @@ export const validImageDimension = async (
         };
     });
 };
-export const filesToURL = (files: File[]) => files.map((file) => URL.createObjectURL(file));
+
 export const getNewID = () => Math.random().toString().substring(2);
-
-export function getRandomInt(min: number, max: number) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}

@@ -5,17 +5,23 @@ import { BsTrash } from 'react-icons/bs';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
 
 import Trait from './Trait';
+import { TraitInfo } from '../utils';
 
-export const Preview: FC<any> = ({ b64Images, attrs }) => {
+interface PreviewProps {
+    images: string[];
+    traits: TraitInfo[][];
+}
+
+export const Preview: FC<PreviewProps> = ({ images, traits }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const imageRef = useRef<HTMLImageElement>(null);
 
     useEffect(() => {
         if (imageRef.current !== null) {
-            imageRef.current.src = b64Images[selectedIndex];
+            imageRef.current.src = images[selectedIndex];
         }
-    }, [selectedIndex, b64Images]);
+    }, [selectedIndex, images]);
 
     return (
         <VStack justify="center">
@@ -28,7 +34,7 @@ export const Preview: FC<any> = ({ b64Images, attrs }) => {
                     textAlign="right"
                     w="full"
                 >
-                    {selectedIndex + 1}/{b64Images.length}
+                    {selectedIndex + 1}/{images.length}
                 </Text>
                 <Image ref={imageRef} boxSize="300px" />
                 <HStack justify="center" w="full">
@@ -50,15 +56,15 @@ export const Preview: FC<any> = ({ b64Images, attrs }) => {
                     <IconButton
                         aria-label="next"
                         colorScheme="pink"
-                        disabled={selectedIndex === b64Images.length - 1}
+                        disabled={selectedIndex === images.length - 1}
                         icon={<AiOutlineArrowRight />}
                         onClick={() => setSelectedIndex((prev) => prev + 1)}
                     />
                 </HStack>
             </VStack>
             <HStack justify="center" mt="30px !important" w="full" wrap="wrap">
-                {attrs.length > 0 &&
-                    attrs[selectedIndex].map((trait: any) => {
+                {traits.length > 0 &&
+                    traits[selectedIndex].map((trait: TraitInfo) => {
                         return (
                             <Box key={trait.id} m="5px !important">
                                 <Trait name={trait.name} usage={trait.usage} value={trait.value} />

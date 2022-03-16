@@ -1,9 +1,16 @@
 /* eslint-disable no-unused-vars */
 import { useState } from 'react';
 
-import { CustomHook } from './utils';
+import {
+    CustomHook,
+    HEIGHT_PX,
+    MAX_AMOUNT_IMAGES,
+    WIDTH_PX,
+    union,
+    validImageDimension,
+} from '../utils';
+
 import useError from './error';
-import { HEIGHT_PX, MAX_AMOUNT_IMAGES, WIDTH_PX, union, validImageDimension } from '../Commons';
 
 const checkDimensions = async (
     newFiles: File[],

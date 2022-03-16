@@ -8,8 +8,8 @@ import { useModal } from './Modal';
 
 import ImageConfigModal from './ImageConfigModal';
 
-import { useGlobalImage } from '../GlobalContext';
-import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from '../Commons';
+import { useGlobal } from '../GlobalContext';
+import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from '../utils';
 
 const ImageOptions: FC<{
     openModal: () => void;
@@ -63,7 +63,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({ file, removeFile, layerIndex
 
     const { open, close: closeModal } = useModal();
 
-    const { updateImage } = useGlobalImage();
+    const { updateImage } = useGlobal();
 
     useEffect(() => {
         updateImage(layerIndex, index, {

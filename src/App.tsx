@@ -2,26 +2,26 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 import { Accordion, Button, Container, HStack, useDisclosure } from '@chakra-ui/react';
-import { useContext, useEffect } from 'react';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
+import { useEffect } from 'react';
 
-import { GlobalContext } from './GlobalContext';
 import Layer from './components/Layer';
+
 import { useMoralis } from 'react-moralis';
 
 import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
+import { useGlobal } from './GlobalContext';
 import useLayers from './hooks/layers';
 
 function App() {
-    const { calculateCombinations, combinations, generalError } = useContext(GlobalContext);
+    const { generateImages } = useGlobal();
+    const { showError } = useError({ showErrorTitle: 'Please check' });
 
     const { layers, createLayer, removeLayer, moveLayer, allowMoveLayer, renameLayer } = useLayers(
         {},
     );
-
-    const { showError } = useError({ showErrorTitle: 'Please check' });
 
     const {
         isOpen: isPreviewOpen,
@@ -39,17 +39,11 @@ function App() {
         }
     }, []);
 
-    const previewClick = () => {
-        if (combinations.length !== 0 || calculateCombinations()) {
-            onPreviewOpen();
-        }
+    const handleOpenPreview = () => {
+        generateImages()
+            .then(onPreviewOpen)
+            .catch((err) => showError(err.message));
     };
-
-    useEffect(() => {
-        if (generalError !== '') {
-            showError(generalError);
-        }
-    }, [generalError]);
 
     return (
         <>
@@ -80,12 +74,7 @@ function App() {
                         Add layer
                     </Button>
 
-                    <Button
-                        colorScheme="pink"
-                        disabled={generalError !== ''}
-                        variant="solid"
-                        onClick={previewClick}
-                    >
+                    <Button colorScheme="pink" variant="solid" onClick={handleOpenPreview}>
                         Preview
                     </Button>
                     {!isWeb3Enabled && (

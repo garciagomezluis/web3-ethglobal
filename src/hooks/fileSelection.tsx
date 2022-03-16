@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { CustomHook } from './utils';
+import { CustomHook } from '../utils';
 import { useEffect, useRef, useState } from 'react';
 
 const useFileSelection: CustomHook<

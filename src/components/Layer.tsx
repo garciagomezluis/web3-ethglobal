@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
-import { FC } from 'react';
 import { AiFillCloseCircle, AiOutlineArrowDown, AiOutlineArrowUp } from 'react-icons/ai';
+import { FC, useEffect } from 'react';
 
 import {
     AccordionButton,
@@ -16,8 +16,7 @@ import {
 } from '@chakra-ui/react';
 
 import Gallery from './Gallery';
-import { LayerType } from '../GlobalContext';
-import { UpDownType } from '../Commons';
+import { LayerType, UpDownType } from '../utils';
 
 interface LayerProps extends LayerType {
     index: number;
@@ -37,11 +36,17 @@ export const Layer: FC<LayerProps> = ({
     onRemove,
     onRename,
 }) => {
+    const defaultLayerName = `Layer #${index + 1}`;
+
+    useEffect(() => {
+        onRename(id, defaultLayerName);
+    }, []);
+
     return (
         <AccordionItem>
             <AccordionButton _expanded={{ bg: 'pink.500', color: 'white' }}>
                 <Editable
-                    defaultValue={`Layer #${index + 1}`}
+                    defaultValue={defaultLayerName}
                     flex="1"
                     textAlign="left"
                     onChange={(e) => onRename(id, e)}

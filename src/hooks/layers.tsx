@@ -1,9 +1,8 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react';
 
-import { CustomHook } from './utils';
-import { LayerConfig, LayerType, useGlobalLayers } from '../GlobalContext';
-import { UpDownType, getNewID } from '../Commons';
+import { useGlobal } from '../GlobalContext';
+import { CustomHook, LayerConfig, LayerType, UpDownType, getNewID } from '../utils';
 
 export const useLayers: CustomHook<
     { initialAmount?: number },
@@ -18,7 +17,7 @@ export const useLayers: CustomHook<
 > = ({ initialAmount = 2 }) => {
     const [layers, setLayers] = useState<LayerConfig[]>([]);
 
-    const { updateLayers } = useGlobalLayers();
+    const { updateLayers } = useGlobal();
 
     useEffect(() => {
         updateLayers(layers);

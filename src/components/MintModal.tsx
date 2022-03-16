@@ -41,7 +41,7 @@ const createFolderIPFS = async (content: any) => {
 
         return exampleUri.substr(exampleUri.indexOf('Qm'), 46);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
     }
 };
 
@@ -103,7 +103,7 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
 
         setUploading(false);
 
-        console.log(ipfsCidMetadata);
+        // console.log(ipfsCidMetadata);
 
         setMakingTransaction(true);
 

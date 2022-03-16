@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 import warning from 'warning';
 
-import { CustomHook } from './utils';
+import { CustomHook } from '../utils';
 
 export interface UseStepperConfig {
     initialValue?: number;

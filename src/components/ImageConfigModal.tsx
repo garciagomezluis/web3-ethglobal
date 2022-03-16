@@ -17,7 +17,7 @@ import { FC, useState } from 'react';
 
 import Stepper from './Stepper';
 
-import { UsageType } from '../Commons';
+import { UsageType } from '../utils';
 
 interface ConfigFormProps {
     name: string;

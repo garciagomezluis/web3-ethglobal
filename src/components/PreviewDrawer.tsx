@@ -14,7 +14,7 @@ import { useMoralis, useMoralisFile } from 'react-moralis';
 
 import MintModal from './MintModal';
 import Preview from './Preview';
-import useCombinations from '../hooks/combinations';
+import { useGlobal } from '../GlobalContext';
 import { useModal } from './Modal';
 
 const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
@@ -24,15 +24,15 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
 
     const { open, close } = useModal();
 
-    const { toUploadFiles, toUploadAttrs } = useCombinations({});
+    const { images, traits } = useGlobal();
 
     const openModal = () => {
         open({
             element: MintModal,
             props: {
                 onClose: close,
-                attrs: toUploadAttrs,
-                files: toUploadFiles,
+                attrs: traits,
+                files: images,
             },
             locked: false,
         });
@@ -46,7 +46,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     Collection preview
                 </DrawerHeader>
                 <DrawerBody>
-                    <Preview attrs={toUploadAttrs} b64Images={toUploadFiles} />
+                    <Preview images={images} traits={traits} />
                 </DrawerBody>
                 <DrawerFooter>
                     {isUploading ? 'cargando...' : ''}
