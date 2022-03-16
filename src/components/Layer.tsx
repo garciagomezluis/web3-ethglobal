@@ -22,6 +22,7 @@ interface LayerProps extends LayerType {
     index: number;
     allowMoveDown: boolean;
     allowMoveUp: boolean;
+    allowDelete: boolean;
     onMove: (id: string, direction: UpDownType) => void;
     onRemove: (id: string) => void;
     onRename: (id: string, name: string) => void;
@@ -32,6 +33,7 @@ export const Layer: FC<LayerProps> = ({
     id,
     allowMoveDown,
     allowMoveUp,
+    allowDelete,
     onMove,
     onRemove,
     onRename,
@@ -74,7 +76,7 @@ export const Layer: FC<LayerProps> = ({
                             onClick={() => onMove(id, 'down')}
                         />
                     )}
-                    {allowMoveUp && allowMoveDown && (
+                    {allowDelete && (
                         <Button
                             colorScheme="pink"
                             leftIcon={<AiFillCloseCircle />}

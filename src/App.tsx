@@ -50,9 +50,10 @@ function App() {
             <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} />
             <Container maxW="container.xl">
                 <Accordion>
-                    {layers.map((layer: any, i: number) => (
+                    {layers.map((layer, i) => (
                         <Layer
                             key={layer.id}
+                            allowDelete={layers.length !== 2}
                             allowMoveDown={allowMoveLayer(i, 'down')}
                             allowMoveUp={allowMoveLayer(i, 'up')}
                             id={layer.id}

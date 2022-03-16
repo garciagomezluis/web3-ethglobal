@@ -39,8 +39,8 @@ export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({
 
     const realValue = isControlled ? value : state;
 
-    const atLowest = typeof minValue === 'number' && minValue === state;
-    const atGreatest = typeof maxValue === 'number' && maxValue === state;
+    const atLowest = typeof minValue === 'number' && minValue === realValue;
+    const atGreatest = typeof maxValue === 'number' && maxValue === realValue;
 
     if (process.env.NODE_ENV !== 'production') {
         useEffect(() => {

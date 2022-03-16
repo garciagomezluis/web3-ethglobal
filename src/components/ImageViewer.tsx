@@ -53,8 +53,6 @@ export interface ImageViewerProps {
 }
 
 export const ImageViewer: FC<ImageViewerProps> = ({ file, removeFile, layerIndex, index }) => {
-    // TODO: update contexto global. setFileTraitValue, setFileUsageType, setFileUsageValue
-
     const [missingNameError, setMissingNameError] = useState(false);
 
     const [name, setName] = useState(file.name);
