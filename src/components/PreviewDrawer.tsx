@@ -10,16 +10,15 @@ import {
     HStack,
     Spacer,
 } from '@chakra-ui/react';
-import { useMoralis, useMoralisFile } from 'react-moralis';
 
+import ConnectButton from './ConnectButton';
 import MintModal from './MintModal';
 import Preview from './Preview';
 import { useGlobal } from '../GlobalContext';
 import { useModal } from './Modal';
+import { useMoralisFile } from 'react-moralis';
 
 const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
-    const { enableWeb3, isWeb3Enabled } = useMoralis();
-
     const { isUploading } = useMoralisFile();
 
     const { open, close } = useModal();
@@ -52,24 +51,11 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     {isUploading ? 'cargando...' : ''}
                     <HStack w="full">
                         <Spacer />
-                        {!isWeb3Enabled && (
-                            <Button
-                                colorScheme="pink"
-                                variant="solid"
-                                onClick={() =>
-                                    enableWeb3({
-                                        chainId: 80001,
-                                    })
-                                }
-                            >
-                                Connect wallet
-                            </Button>
-                        )}
-                        {isWeb3Enabled && (
+                        <ConnectButton type="actionable">
                             <Button colorScheme="pink" variant="solid" onClick={openModal}>
                                 Mint collection
                             </Button>
-                        )}
+                        </ConnectButton>
                     </HStack>
                 </DrawerFooter>
             </DrawerContent>

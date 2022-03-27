@@ -8,8 +8,7 @@ import { useEffect } from 'react';
 
 import Layer from './components/Layer';
 
-import { useMoralis } from 'react-moralis';
-
+import { ConnectButton } from './components/ConnectButton';
 import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
 import { useGlobal } from './GlobalContext';
@@ -29,15 +28,7 @@ function App() {
         onClose: onPreviewClose,
     } = useDisclosure();
 
-    const { logout, enableWeb3, isWeb3Enabled, isWeb3EnableLoading } = useMoralis();
-
-    useEffect(() => {
-        if (!isWeb3Enabled && !isWeb3EnableLoading) {
-            enableWeb3({
-                chainId: 80001,
-            });
-        }
-    }, []);
+    useEffect(() => console.log('render App'));
 
     const handleOpenPreview = () => {
         generateImages()
@@ -78,24 +69,7 @@ function App() {
                     <Button colorScheme="pink" variant="solid" onClick={handleOpenPreview}>
                         Preview
                     </Button>
-                    {!isWeb3Enabled && (
-                        <Button
-                            colorScheme="pink"
-                            variant="solid"
-                            onClick={() =>
-                                enableWeb3({
-                                    chainId: 80001,
-                                })
-                            }
-                        >
-                            Connect wallet
-                        </Button>
-                    )}
-                    {isWeb3Enabled && (
-                        <Button colorScheme="pink" variant="solid" onClick={() => logout()}>
-                            Disconnect
-                        </Button>
-                    )}
+                    <ConnectButton />
                 </HStack>
             </Container>
         </>
