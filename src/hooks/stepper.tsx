@@ -22,8 +22,12 @@ export interface UseStepperProps {
     atGreatest: boolean;
 }
 
-const resolve = (value: number, fnBound: (...values: number[]) => number, bound?: number) =>
-    bound ? fnBound(value, bound) : value;
+const resolve = (
+    oldValue: number,
+    newValue: number,
+    fnBound: (...values: number[]) => number,
+    bound?: number,
+) => (bound ? (fnBound(newValue, bound) === bound ? oldValue : newValue) : newValue);
 
 export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({
     initialValue = 0,
@@ -56,7 +60,7 @@ export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({
     }
 
     const increment = () => {
-        const newValue = resolve(realValue + step, Math.min, maxValue);
+        const newValue = resolve(realValue, realValue + step, Math.min, maxValue && maxValue + 1);
 
         if (!isControlled) setState(newValue);
 
@@ -64,7 +68,7 @@ export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({
     };
 
     const decrement = () => {
-        const newValue = resolve(realValue - step, Math.max, minValue);
+        const newValue = resolve(realValue, realValue - step, Math.max, minValue && minValue - 1);
 
         if (!isControlled) setState(newValue);
 

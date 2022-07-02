@@ -13,8 +13,8 @@ ReactDOM.render(
         <ChakraProvider theme={theme}>
             <MoralisProvider
                 initializeOnMount
-                appId="aNvLuGhU8CZQiNUPZ941VsKZOoswoI5K9BZyddC7"
-                serverUrl="https://olputa0a7acn.usemoralis.com:2053/server"
+                appId="XpSCFDcLmmYoFwCIWictEjHQYxREfaPLGVbNjNSo"
+                serverUrl="https://jkikashbsvld.usemoralis.com:2053/server"
             >
                 <GlobalProvider>
                     <ModalProvider>

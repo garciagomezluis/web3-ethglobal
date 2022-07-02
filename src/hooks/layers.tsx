@@ -2,36 +2,45 @@
 import { useEffect, useState } from 'react';
 
 import { useGlobal } from '../GlobalContext';
-import { CustomHook, LayerConfig, LayerType, UpDownType, getNewID } from '../utils';
+import { CustomHook, LayerConfig, UpDownType, getNewID } from '../utils';
+
+const getRawLayers = (amount: number = 1) => {
+    return Array(amount)
+        .fill({ name: '' })
+        .map((e) => ({ id: getNewID(), ...e }));
+};
 
 export const useLayers: CustomHook<
     { initialAmount?: number },
     {
-        layers: LayerType[];
+        layers: LayerConfig[];
         createLayer: () => void;
         removeLayer: (id: string) => void;
         moveLayer: (id: string, direction: UpDownType) => void;
-        allowMoveLayer: (i: number, direction: UpDownType) => boolean;
+        allowMoveLayer: (i: number, layers: LayerConfig[], direction: UpDownType) => boolean;
         renameLayer: (id: string, value: string) => void;
     }
 > = ({ initialAmount = 2 }) => {
-    const [layers, setLayers] = useState<LayerConfig[]>([]);
+    const [layers, setLayers] = useState<LayerConfig[]>(() => getRawLayers(initialAmount));
 
     const { updateLayers } = useGlobal();
 
     useEffect(() => {
+        console.log('amount', layers);
+    }, []);
+
+    useEffect(() => {
+        console.log('layers', layers);
         updateLayers(layers);
     }, [layers]);
 
-    useEffect(() => {
-        for (let i = 0; i < initialAmount; i++) {
-            createLayer();
-        }
-    }, [initialAmount]);
+    const createLayer = (amount: number = 1) => {
+        setLayers((layers) => [...layers, ...getRawLayers(amount)]);
+    };
 
-    const createLayer = () => setLayers((layers) => [...layers, { id: getNewID(), name: '' }]);
-
-    const removeLayer = (id: string) => setLayers((layers) => layers.filter((l) => l.id !== id));
+    const removeLayer = (id: string) => {
+        setLayers((layers) => layers.filter((l) => l.id !== id));
+    };
 
     const moveLayer = (id: string, direction: UpDownType) => {
         setLayers((prev) => {
@@ -54,7 +63,7 @@ export const useLayers: CustomHook<
         });
     };
 
-    const allowMoveLayer = (i: number, direction: UpDownType) => {
+    const allowMoveLayer = (i: number, layers: LayerConfig[], direction: UpDownType) => {
         if (direction === 'down') {
             return i < layers.length - 1;
         }

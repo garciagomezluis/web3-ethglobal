@@ -19,7 +19,7 @@ export const ConnectButton: FC<{ type?: 'closable' | 'actionable' }> = ({
 
     if (isWeb3Enabled && type === 'closable')
         return (
-            <Button colorScheme="pink" variant="solid" onClick={() => logout()}>
+            <Button colorScheme="pink" onClick={() => logout()}>
                 Disconnect
             </Button>
         );
@@ -29,7 +29,6 @@ export const ConnectButton: FC<{ type?: 'closable' | 'actionable' }> = ({
     return (
         <Button
             colorScheme="pink"
-            variant="solid"
             onClick={() =>
                 enableWeb3({
                     chainId: 80001,

@@ -25,7 +25,6 @@ const ImageOptions: FC<{
                 colorScheme="pink"
                 leftIcon={<AiFillEdit />}
                 my="10px !important"
-                variant="solid"
                 w="70%"
                 onClick={openModal}
             >
@@ -35,7 +34,6 @@ const ImageOptions: FC<{
                 colorScheme="pink"
                 leftIcon={<AiFillCloseCircle />}
                 my="10px !important"
-                variant="solid"
                 w="70%"
                 onClick={remove}
             >

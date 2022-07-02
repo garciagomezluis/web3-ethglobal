@@ -4,7 +4,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-unused-vars */
 import mergeImages from 'merge-images';
-import { FC, createContext, useContext, useEffect, useState } from 'react';
+import { FC, createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
     GlobalLayerConfig,
     ImageConfig,
@@ -13,10 +13,6 @@ import {
     UsageType,
     getNewID,
 } from './utils';
-
-import rfdc from 'rfdc';
-
-const clone = rfdc();
 
 type GlobalContextType = {
     updateLayers: (layers: LayerConfig[]) => void;
@@ -211,7 +207,17 @@ export const GlobalProvider: FC = ({ children }) => {
         });
     };
 
-    const generateImages = async () => {
+    const removeImage = (layerIndex: number, imageIndex: number) => {
+        setLayersConfig((prevLayersConfig) => {
+            prevLayersConfig[layerIndex].images = prevLayersConfig[layerIndex].images.filter(
+                (_, index) => index === imageIndex,
+            );
+
+            return [...prevLayersConfig];
+        });
+    };
+
+    const generateImages = useCallback(async () => {
         if (images.length > 0 && traits.length > 0) return { images, traits };
 
         let failingLayers = getLayersName(layersConfig, noImageSet);
@@ -249,7 +255,7 @@ export const GlobalProvider: FC = ({ children }) => {
         setTraits(newTraits);
 
         return { images: newImages, traits: newTraits };
-    };
+    }, [layersConfig, images, traits]);
 
     return (
         <GlobalContext.Provider

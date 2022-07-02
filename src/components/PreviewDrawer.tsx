@@ -52,7 +52,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     <HStack w="full">
                         <Spacer />
                         <ConnectButton type="actionable">
-                            <Button colorScheme="pink" variant="solid" onClick={openModal}>
+                            <Button colorScheme="pink" onClick={openModal}>
                                 Mint collection
                             </Button>
                         </ConnectButton>

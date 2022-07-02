@@ -7,6 +7,7 @@ import {
     AccordionIcon,
     AccordionItem,
     AccordionPanel,
+    Box,
     Button,
     Editable,
     EditableInput,
@@ -16,77 +17,91 @@ import {
 } from '@chakra-ui/react';
 
 import Gallery from './Gallery';
-import { LayerType, UpDownType } from '../utils';
+import { LayerType } from '../utils';
+import useLayers from '../hooks/layers';
 
-interface LayerProps extends LayerType {
-    index: number;
-    allowMoveDown: boolean;
-    allowMoveUp: boolean;
-    allowDelete: boolean;
-    onMove: (id: string, direction: UpDownType) => void;
-    onRemove: (id: string) => void;
-    onRename: (id: string, name: string) => void;
-}
+const LayerName: FC<{ index: number; id: string }> = ({ index, id }) => {
+    const { renameLayer } = useLayers({});
 
-export const Layer: FC<LayerProps> = ({
-    index,
-    id,
-    allowMoveDown,
-    allowMoveUp,
-    allowDelete,
-    onMove,
-    onRemove,
-    onRename,
-}) => {
     const defaultLayerName = `Layer #${index + 1}`;
 
     useEffect(() => {
-        onRename(id, defaultLayerName);
+        console.log(id, defaultLayerName);
+        renameLayer(id, defaultLayerName);
     }, []);
+
+    // useEffect(() => {
+    //     console.log(index, id);
+    // }, [index, id]);
+
+    return (
+        <Editable
+            defaultValue={defaultLayerName}
+            flex="1"
+            textAlign="left"
+            onBlur={(e) => renameLayer(id, e.target.value)}
+        >
+            <EditablePreview />
+            <EditableInput />
+        </Editable>
+    );
+};
+
+const LayerMenu: FC<{ index: number; id: string }> = ({ index, id }) => {
+    const { layers, allowMoveLayer, moveLayer, removeLayer } = useLayers({});
+
+    const allowMoveUp = allowMoveLayer(index, layers, 'up');
+    const allowMoveDown = allowMoveLayer(index, layers, 'down');
+    const allowDelete = layers.length !== 2;
+
+    return (
+        <HStack justify="flex-end">
+            {allowMoveUp && (
+                <IconButton
+                    aria-label="move up"
+                    colorScheme="pink"
+                    icon={<AiOutlineArrowUp />}
+                    onClick={() => moveLayer(id, 'up')}
+                />
+            )}
+            {allowMoveDown && (
+                <IconButton
+                    aria-label="move down"
+                    colorScheme="pink"
+                    icon={<AiOutlineArrowDown />}
+                    onClick={() => moveLayer(id, 'down')}
+                />
+            )}
+            {allowDelete && (
+                <Button
+                    colorScheme="pink"
+                    leftIcon={<AiFillCloseCircle />}
+                    onClick={() => removeLayer(id)}
+                >
+                    Remove
+                </Button>
+            )}
+        </HStack>
+    );
+};
+
+interface LayerProps extends LayerType {
+    index: number;
+}
+
+export const Layer: FC<LayerProps> = ({ index, id }) => {
+    console.log(index, id);
 
     return (
         <AccordionItem>
             <AccordionButton _expanded={{ bg: 'pink.500', color: 'white' }}>
-                <Editable
-                    defaultValue={defaultLayerName}
-                    flex="1"
-                    textAlign="left"
-                    onChange={(e) => onRename(id, e)}
-                >
-                    <EditablePreview />
-                    <EditableInput />
-                </Editable>
+                <LayerName id={id} index={index} />
                 <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
-                <HStack justify="flex-end" my="5">
-                    {allowMoveUp && (
-                        <IconButton
-                            aria-label="move up"
-                            colorScheme="pink"
-                            icon={<AiOutlineArrowUp />}
-                            onClick={() => onMove(id, 'up')}
-                        />
-                    )}
-                    {allowMoveDown && (
-                        <IconButton
-                            aria-label="move down"
-                            colorScheme="pink"
-                            icon={<AiOutlineArrowDown />}
-                            onClick={() => onMove(id, 'down')}
-                        />
-                    )}
-                    {allowDelete && (
-                        <Button
-                            colorScheme="pink"
-                            leftIcon={<AiFillCloseCircle />}
-                            variant="solid"
-                            onClick={() => onRemove(id)}
-                        >
-                            Remove
-                        </Button>
-                    )}
-                </HStack>
+                <Box my="5">
+                    <LayerMenu id={id} index={index} />
+                </Box>
 
                 <Gallery layerIndex={index} />
             </AccordionPanel>
