@@ -1,11 +1,8 @@
 import { FC } from 'react';
+import { TraitInfo } from '../utils';
 import { Text, VStack } from '@chakra-ui/react';
 
-interface TraitProps {
-    name: string;
-    value: string;
-    usage: number;
-}
+interface TraitProps extends TraitInfo {}
 
 export const Trait: FC<TraitProps> = ({ name, value, usage }) => {
     return (

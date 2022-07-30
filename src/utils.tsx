@@ -22,10 +22,10 @@ export interface GalleryItem {
 
 export type LayerType = {
     id: string;
+    name: string;
 };
 
 export type LayerConfig = LayerType & {
-    name: string;
     images: GalleryItem[];
 };
 

@@ -62,6 +62,7 @@ export const ModalProvider: FC = ({ children }) => {
             >
                 <ModalOverlay />
                 <ModalContent>
+                    {/* TODO: Move this button inside the ModalHeader */}
                     <ModalCloseButton disabled={locked} />
                     {Element !== null && <Element {...props} />}
                 </ModalContent>

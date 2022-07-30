@@ -6,15 +6,15 @@ import FileUpload from './FileUpload';
 import ImageViewer from './ImageViewer';
 import useGallery from '../hooks/gallery';
 
+import { ImageConfig } from '../utils';
 import { useLayers } from '../LayersContext';
-import { GalleryItem, ImageConfig } from '../utils';
 
-export const Gallery: FC<{ layerId: string }> = ({ layerId }) => {
+export const Gallery: FC<{ id: string }> = ({ id }) => {
     const { items, push, remove, update, pushEnabled } = useGallery({});
     const { updateLayerImages } = useLayers();
 
     useEffect(() => {
-        updateLayerImages(layerId, items);
+        updateLayerImages(id, items);
     }, [items]);
 
     return (

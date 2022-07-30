@@ -21,15 +21,18 @@ import { useLayers } from '../LayersContext';
 
 import Gallery from './Gallery';
 
-const LayerName: FC<{ id: string }> = ({ id }) => {
+const LayerName: FC<LayerType> = ({ id, name }) => {
+    // TODO: validate empty layer name
+
     const { updateLayerName } = useLayers();
 
     return (
         <Editable
-            defaultValue="default"
+            submitOnBlur
+            defaultValue={name}
             flex="1"
             textAlign="left"
-            onBlur={(e) => updateLayerName(id, e.target.value)}
+            onSubmit={(e) => updateLayerName(id, e)}
         >
             <EditablePreview />
             <EditableInput />
@@ -77,11 +80,11 @@ const LayerMenu: FC<{ id: string }> = ({ id }) => {
 
 interface LayerProps extends LayerType {}
 
-export const Layer: FC<LayerProps> = ({ id }) => {
+export const Layer: FC<LayerProps> = ({ id, name }) => {
     return (
         <AccordionItem>
             <AccordionButton _expanded={{ bg: 'pink.500', color: 'white' }}>
-                <LayerName id={id} />
+                <LayerName id={id} name={name} />
                 <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
@@ -89,7 +92,7 @@ export const Layer: FC<LayerProps> = ({ id }) => {
                     <LayerMenu id={id} />
                 </Box>
 
-                <Gallery layerId={id} />
+                <Gallery id={id} />
             </AccordionPanel>
         </AccordionItem>
     );

@@ -60,8 +60,8 @@ function App() {
 
             <Container maxW="container.xl" p="4">
                 <Accordion>
-                    {layers.map(({ id }) => (
-                        <Layer key={id} id={id} />
+                    {layers.map(({ id, name }) => (
+                        <Layer key={id} id={id} name={name} />
                     ))}
                 </Accordion>
 

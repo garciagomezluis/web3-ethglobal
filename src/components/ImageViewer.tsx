@@ -8,9 +8,7 @@ import { useModal } from './Modal';
 
 import ImageConfigModal from './ImageConfigModal';
 
-import { Config, GalleryItem } from '../hooks/gallery';
-
-import { HEIGHT_PX, WIDTH_PX, getUsageText } from '../utils';
+import { GalleryItem, HEIGHT_PX, ImageConfig, WIDTH_PX, getUsageText } from '../utils';
 
 const ImageOptions: FC<{
     openModal: () => void;
@@ -47,7 +45,7 @@ const ImageOptions: FC<{
 export interface ImageViewerProps {
     item: GalleryItem;
     remove: () => void;
-    update: (config: Config) => void;
+    update: (config: ImageConfig) => void;
 }
 
 export const ImageViewer: FC<ImageViewerProps> = ({ item, remove, update }) => {

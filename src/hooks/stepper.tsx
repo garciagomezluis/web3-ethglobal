@@ -27,6 +27,7 @@ const resolve = (
     newValue: number,
     fnBound: (...values: number[]) => number,
     bound?: number,
+    // eslint-disable-next-line no-nested-ternary
 ) => (bound ? (fnBound(newValue, bound) === bound ? oldValue : newValue) : newValue);
 
 export const useStepper: CustomHook<UseStepperConfig, UseStepperProps> = ({

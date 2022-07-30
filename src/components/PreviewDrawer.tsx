@@ -50,7 +50,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     <Preview images={images} traits={traits} />
                 </DrawerBody>
                 <DrawerFooter>
-                    {isUploading ? 'cargando...' : ''}
+                    {isUploading ? 'loading...' : ''}
                     <HStack w="full">
                         <Spacer />
                         <Button colorScheme="pink" disabled={!isConnected} onClick={openModal}>

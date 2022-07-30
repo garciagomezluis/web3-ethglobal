@@ -15,8 +15,7 @@ import {
 } from '@chakra-ui/react';
 import React, { FC, useState } from 'react';
 
-import { Config } from '../hooks/gallery';
-
+import { ImageConfig } from '../utils';
 import Stepper from './Stepper';
 
 const updateObj = (obj: any, key: string, value: any) => {
@@ -27,8 +26,8 @@ const updateObj = (obj: any, key: string, value: any) => {
 };
 
 const ConfigForm: FC<{
-    config: Config;
-    setConfig: React.Dispatch<React.SetStateAction<Config>>;
+    config: ImageConfig;
+    setConfig: React.Dispatch<React.SetStateAction<ImageConfig>>;
 }> = ({ config, setConfig }) => {
     const { name, usageType, usageValue } = config;
 
@@ -71,8 +70,8 @@ const ConfigForm: FC<{
 
 interface ImageConfigModalProps {
     onClose: () => void;
-    onChange: (config: Config) => void;
-    defaultConfig: Config;
+    onChange: (config: ImageConfig) => void;
+    defaultConfig: ImageConfig;
 }
 
 export const ImageConfigModal: FC<ImageConfigModalProps> = ({
@@ -80,7 +79,7 @@ export const ImageConfigModal: FC<ImageConfigModalProps> = ({
     onChange,
     defaultConfig,
 }) => {
-    const [config, setConfig] = useState<Config>(defaultConfig);
+    const [config, setConfig] = useState<ImageConfig>(defaultConfig);
 
     const onClickSave = () => {
         onChange(config);
@@ -95,10 +94,10 @@ export const ImageConfigModal: FC<ImageConfigModalProps> = ({
             </ModalBody>
 
             <ModalFooter>
-                <Button colorScheme="pink" mr={3} onClick={onClose}>
+                <Button mr={3} variant="ghost" onClick={onClose}>
                     Close
                 </Button>
-                <Button variant="ghost" onClick={onClickSave}>
+                <Button colorScheme="pink" onClick={onClickSave}>
                     Save
                 </Button>
             </ModalFooter>
