@@ -1,6 +1,5 @@
-/* eslint-disable no-unused-vars */
+import { FC } from 'react';
 import { AiFillCloseCircle, AiOutlineArrowDown, AiOutlineArrowUp } from 'react-icons/ai';
-import { FC, useEffect } from 'react';
 
 import {
     AccordionButton,
@@ -16,30 +15,21 @@ import {
     IconButton,
 } from '@chakra-ui/react';
 
-import Gallery from './Gallery';
 import { LayerType } from '../utils';
-import useLayers from '../hooks/layers';
 
-const LayerName: FC<{ index: number; id: string }> = ({ index, id }) => {
-    const { renameLayer } = useLayers({});
+import { useLayers } from '../LayersContext';
 
-    const defaultLayerName = `Layer #${index + 1}`;
+import Gallery from './Gallery';
 
-    useEffect(() => {
-        console.log(id, defaultLayerName);
-        renameLayer(id, defaultLayerName);
-    }, []);
-
-    // useEffect(() => {
-    //     console.log(index, id);
-    // }, [index, id]);
+const LayerName: FC<{ id: string }> = ({ id }) => {
+    const { updateLayerName } = useLayers();
 
     return (
         <Editable
-            defaultValue={defaultLayerName}
+            defaultValue="default"
             flex="1"
             textAlign="left"
-            onBlur={(e) => renameLayer(id, e.target.value)}
+            onBlur={(e) => updateLayerName(id, e.target.value)}
         >
             <EditablePreview />
             <EditableInput />
@@ -47,11 +37,11 @@ const LayerName: FC<{ index: number; id: string }> = ({ index, id }) => {
     );
 };
 
-const LayerMenu: FC<{ index: number; id: string }> = ({ index, id }) => {
-    const { layers, allowMoveLayer, moveLayer, removeLayer } = useLayers({});
+const LayerMenu: FC<{ id: string }> = ({ id }) => {
+    const { layers, allowMoveLayer, moveLayer, removeLayer } = useLayers();
 
-    const allowMoveUp = allowMoveLayer(index, layers, 'up');
-    const allowMoveDown = allowMoveLayer(index, layers, 'down');
+    const allowMoveUp = allowMoveLayer(id, 'up');
+    const allowMoveDown = allowMoveLayer(id, 'down');
     const allowDelete = layers.length !== 2;
 
     return (
@@ -85,25 +75,21 @@ const LayerMenu: FC<{ index: number; id: string }> = ({ index, id }) => {
     );
 };
 
-interface LayerProps extends LayerType {
-    index: number;
-}
+interface LayerProps extends LayerType {}
 
-export const Layer: FC<LayerProps> = ({ index, id }) => {
-    console.log(index, id);
-
+export const Layer: FC<LayerProps> = ({ id }) => {
     return (
         <AccordionItem>
             <AccordionButton _expanded={{ bg: 'pink.500', color: 'white' }}>
-                <LayerName id={id} index={index} />
+                <LayerName id={id} />
                 <AccordionIcon />
             </AccordionButton>
             <AccordionPanel pb={4}>
                 <Box my="5">
-                    <LayerMenu id={id} index={index} />
+                    <LayerMenu id={id} />
                 </Box>
 
-                <Gallery layerIndex={index} />
+                <Gallery layerId={id} />
             </AccordionPanel>
         </AccordionItem>
     );

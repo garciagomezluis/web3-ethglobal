@@ -13,29 +13,27 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { FC, useState } from 'react';
+import React, { FC, useState } from 'react';
+
+import { Config } from '../hooks/gallery';
 
 import Stepper from './Stepper';
 
-import { UsageType } from '../utils';
+const updateObj = (obj: any, key: string, value: any) => {
+    return {
+        ...obj,
+        [key]: value,
+    };
+};
 
-interface ConfigFormProps {
-    name: string;
-    setName: (name: string) => void;
-    usageType: UsageType;
-    setUsageType: (type: UsageType) => void;
-    usageValue: number;
-    setUsageValue: (value: number) => void;
-}
+const ConfigForm: FC<{
+    config: Config;
+    setConfig: React.Dispatch<React.SetStateAction<Config>>;
+}> = ({ config, setConfig }) => {
+    const { name, usageType, usageValue } = config;
 
-const ConfigForm: FC<ConfigFormProps> = ({
-    name,
-    setName,
-    usageType,
-    setUsageType,
-    usageValue,
-    setUsageValue,
-}) => {
+    const updateKV = (k: string, v: any) => setConfig((config) => updateObj(config, k, v));
+
     return (
         <>
             <FormControl>
@@ -43,7 +41,7 @@ const ConfigForm: FC<ConfigFormProps> = ({
                 <Input
                     placeholder="Blue Sky"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => updateKV('name', e.target.value)}
                 />
             </FormControl>
 
@@ -52,7 +50,7 @@ const ConfigForm: FC<ConfigFormProps> = ({
                 <HStack align="center" mt={4} w="full">
                     <Select
                         value={usageType}
-                        onChange={(e) => setUsageType(e.target.value as UsageType)}
+                        onChange={(e) => updateKV('usageType', e.target.value)}
                     >
                         <option value="atleast">At least</option>
                         <option value="exact">Exact</option>
@@ -63,7 +61,7 @@ const ConfigForm: FC<ConfigFormProps> = ({
                         initialValue={1}
                         minValue={1}
                         value={usageValue}
-                        onChange={setUsageValue}
+                        onChange={(e) => updateKV('usageValue', e)}
                     />
                 </HStack>
             </VStack>
@@ -73,31 +71,19 @@ const ConfigForm: FC<ConfigFormProps> = ({
 
 interface ImageConfigModalProps {
     onClose: () => void;
-    onChangeName: (name: string) => void;
-    onChangeUsageType: (type: UsageType) => void;
-    onChangeUsageValue: (value: number) => void;
-    defaultName: string;
-    defaultUsageType: UsageType;
-    defaultUsageValue: number;
+    onChange: (config: Config) => void;
+    defaultConfig: Config;
 }
 
 export const ImageConfigModal: FC<ImageConfigModalProps> = ({
     onClose,
-    onChangeName,
-    onChangeUsageType,
-    onChangeUsageValue,
-    defaultName,
-    defaultUsageType,
-    defaultUsageValue,
+    onChange,
+    defaultConfig,
 }) => {
-    const [name, setName] = useState(defaultName);
-    const [usageType, setUsageType] = useState(defaultUsageType);
-    const [usageValue, setUsageValue] = useState(defaultUsageValue);
+    const [config, setConfig] = useState<Config>(defaultConfig);
 
     const onClickSave = () => {
-        onChangeName(name);
-        onChangeUsageType(usageType);
-        onChangeUsageValue(usageValue);
+        onChange(config);
         onClose();
     };
 
@@ -105,9 +91,7 @@ export const ImageConfigModal: FC<ImageConfigModalProps> = ({
         <>
             <ModalHeader>Image properties</ModalHeader>
             <ModalBody>
-                <ConfigForm
-                    {...{ name, setName, usageType, setUsageType, usageValue, setUsageValue }}
-                />
+                <ConfigForm {...{ config, setConfig }} />
             </ModalBody>
 
             <ModalFooter>

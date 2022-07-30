@@ -8,8 +8,9 @@ import { useModal } from './Modal';
 
 import ImageConfigModal from './ImageConfigModal';
 
-import { useGlobal } from '../GlobalContext';
-import { HEIGHT_PX, UsageType, WIDTH_PX, getUsageText } from '../utils';
+import { Config, GalleryItem } from '../hooks/gallery';
+
+import { HEIGHT_PX, WIDTH_PX, getUsageText } from '../utils';
 
 const ImageOptions: FC<{
     openModal: () => void;
@@ -44,43 +45,27 @@ const ImageOptions: FC<{
 };
 
 export interface ImageViewerProps {
-    file: File;
-    removeFile: () => void;
-    index: number;
-    layerIndex: number;
+    item: GalleryItem;
+    remove: () => void;
+    update: (config: Config) => void;
 }
 
-export const ImageViewer: FC<ImageViewerProps> = ({ file, removeFile, layerIndex, index }) => {
+export const ImageViewer: FC<ImageViewerProps> = ({ item, remove, update }) => {
     const [missingNameError, setMissingNameError] = useState(false);
-
-    const [name, setName] = useState(file.name);
-    const [usageType, setUsageType] = useState<UsageType>('atleast');
-    const [usageValue, setUsageValue] = useState(1);
 
     const { open, close: closeModal } = useModal();
 
-    const { updateImage } = useGlobal();
+    const { file, config } = item;
 
-    useEffect(() => {
-        updateImage(layerIndex, index, {
-            file,
-            name,
-            usageType,
-            usageValue,
-        });
-    }, [file, name, usageType, usageValue]);
+    const { name, usageType, usageValue } = config;
 
     const openModal = () => {
         open({
             element: ImageConfigModal,
             props: {
                 onClose: closeModal,
-                onChangeName: setName,
-                onChangeUsageType: setUsageType,
-                onChangeUsageValue: setUsageValue,
-                defaultName: name,
-                defaultUsageType: usageType,
-                defaultUsageValue: usageValue,
+                onChange: update,
+                defaultConfig: config,
             },
             locked: false,
         });
@@ -108,7 +93,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({ file, removeFile, layerIndex
                 </Alert>
             )}
 
-            <ImageOptions openModal={openModal} remove={removeFile} />
+            <ImageOptions openModal={openModal} remove={remove} />
         </Box>
     );
 };

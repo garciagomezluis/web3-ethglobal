@@ -3,6 +3,9 @@ module.exports = {
     overrides: [
         {
             files: ['*.ts', '*.tsx', '*.js', '*.jsx'],
+            rules: {
+                'import/extensions': 'off',
+            },
         },
         {
             files: ['*.test.tsx', '**/test/setup.ts', '**/test/utils.ts'],

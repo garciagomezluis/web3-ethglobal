@@ -11,19 +11,21 @@ import {
     Spacer,
 } from '@chakra-ui/react';
 
-import ConnectButton from './ConnectButton';
 import MintModal from './MintModal';
 import Preview from './Preview';
-import { useGlobal } from '../GlobalContext';
+import { useAccount } from 'wagmi';
+import { useLayers } from '../LayersContext';
 import { useModal } from './Modal';
 import { useMoralisFile } from 'react-moralis';
 
 const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
     const { isUploading } = useMoralisFile();
 
+    const { isConnected } = useAccount();
+
     const { open, close } = useModal();
 
-    const { images, traits } = useGlobal();
+    const { images, traits } = useLayers();
 
     const openModal = () => {
         open({
@@ -51,11 +53,9 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     {isUploading ? 'cargando...' : ''}
                     <HStack w="full">
                         <Spacer />
-                        <ConnectButton type="actionable">
-                            <Button colorScheme="pink" onClick={openModal}>
-                                Mint collection
-                            </Button>
-                        </ConnectButton>
+                        <Button colorScheme="pink" disabled={!isConnected} onClick={openModal}>
+                            Mint collection
+                        </Button>
                     </HStack>
                 </DrawerFooter>
             </DrawerContent>

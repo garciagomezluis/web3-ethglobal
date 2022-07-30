@@ -1,32 +1,40 @@
-import { FC } from 'react';
+/* eslint-disable no-unused-vars */
 import { Box, HStack } from '@chakra-ui/react';
+import { FC, useEffect } from 'react';
 
 import FileUpload from './FileUpload';
 import ImageViewer from './ImageViewer';
 import useGallery from '../hooks/gallery';
 
-export const Gallery: FC<{ layerIndex: number }> = ({ layerIndex }) => {
-    const { files, pushFiles, removeFile, canPushFiles } = useGallery({});
+import { useLayers } from '../LayersContext';
+import { GalleryItem, ImageConfig } from '../utils';
+
+export const Gallery: FC<{ layerId: string }> = ({ layerId }) => {
+    const { items, push, remove, update, pushEnabled } = useGallery({});
+    const { updateLayerImages } = useLayers();
+
+    useEffect(() => {
+        updateLayerImages(layerId, items);
+    }, [items]);
 
     return (
         <HStack>
             <Box h="300px" maxW="calc(100% - 320px)" overflowY="hidden">
                 <Box overflowX="scroll" pb="10" w="full">
                     <HStack pos="relative">
-                        {files.map((file, i) => (
-                            <Box key={file.name} flex="1" mx="5px !important">
+                        {items.map((item) => (
+                            <Box key={item.id} flex="1" mx="5px !important">
                                 <ImageViewer
-                                    file={file}
-                                    index={i}
-                                    layerIndex={layerIndex}
-                                    removeFile={() => removeFile(file)}
+                                    item={item}
+                                    remove={() => remove(item.id)}
+                                    update={(config: ImageConfig) => update(item.id, config)}
                                 />
                             </Box>
                         ))}
                     </HStack>
                 </Box>
             </Box>
-            <FileUpload disabled={canPushFiles} onSelect={pushFiles} />
+            <FileUpload disabled={!pushEnabled} onSelect={push} />
         </HStack>
     );
 };

@@ -8,19 +8,25 @@ export type UpDownType = 'up' | 'down';
 
 export type CustomHook<P, Q> = (p: P) => Q;
 
+export interface ImageConfig {
+    name: string;
+    usageType: UsageType;
+    usageValue: number;
+}
+
+export interface GalleryItem {
+    id: string;
+    file: File;
+    config: ImageConfig;
+}
+
 export type LayerType = {
     id: string;
 };
 
 export type LayerConfig = LayerType & {
     name: string;
-};
-
-export type ImageConfig = {
-    file: File;
-    name: string;
-    usageType: UsageType;
-    usageValue: number;
+    images: GalleryItem[];
 };
 
 export type TraitInfo = {
@@ -28,10 +34,6 @@ export type TraitInfo = {
     value: string;
     usage: number;
     id: string;
-};
-
-export type GlobalLayerConfig = LayerConfig & {
-    images: ImageConfig[];
 };
 
 export const MAX_AMOUNT_IMAGES = 10;

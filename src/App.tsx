@@ -1,26 +1,22 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
-import { Accordion, Button, Container, HStack, useDisclosure } from '@chakra-ui/react';
+import { Accordion, Button, Container, HStack, Spacer, useDisclosure } from '@chakra-ui/react';
+
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
 import { FC, useEffect } from 'react';
 
-import Layer from './components/Layer';
+import { useLayers } from './LayersContext';
 
-import { ConnectButton } from './components/ConnectButton';
+import Layer from './components/Layer';
 import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
-import { useGlobal } from './GlobalContext';
-import useLayers from './hooks/layers';
 
 const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
-    const { createLayer } = useLayers({});
-    const { generateImages } = useGlobal();
+    const { combineLayers, createLayer } = useLayers();
     const { showError } = useError({ showErrorTitle: 'Please check' });
 
     const handleOpenPreview = () => {
-        generateImages()
+        combineLayers()
             .then(onPreviewOpen)
             .catch(({ message }) => showError(message));
     };
@@ -33,13 +29,12 @@ const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
             <Button colorScheme="pink" onClick={handleOpenPreview}>
                 Preview
             </Button>
-            <ConnectButton />
         </>
     );
 };
 
 function App() {
-    const { layers } = useLayers({});
+    const { layers, createLayer } = useLayers();
 
     const {
         isOpen: isPreviewOpen,
@@ -47,15 +42,26 @@ function App() {
         onClose: onPreviewClose,
     } = useDisclosure();
 
-    useEffect(() => console.log('render App'));
+    useEffect(() => {
+        createLayer();
+        createLayer();
+    }, []);
 
     return (
         <>
             <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} />
-            <Container maxW="container.xl">
+
+            <Container maxW="container.xl" p="4">
+                <HStack>
+                    <Spacer />
+                    <ConnectButton />
+                </HStack>
+            </Container>
+
+            <Container maxW="container.xl" p="4">
                 <Accordion>
-                    {layers.map(({ id }, i) => (
-                        <Layer key={id} id={id} index={i} />
+                    {layers.map(({ id }) => (
+                        <Layer key={id} id={id} />
                     ))}
                 </Accordion>
 
