@@ -18,6 +18,7 @@ type LayersContextType = {
     removeLayer: (id: string) => void;
     images: string[];
     traits: TraitInfo[][];
+    files: File[];
     layers: LayerConfig[];
 };
 
@@ -33,6 +34,7 @@ const defaultContext: LayersContextType = {
     removeLayer: () => {},
     images: [],
     traits: [],
+    files: [],
     layers: [],
 };
 
@@ -44,11 +46,23 @@ export const useLayers = () => {
 
 export const LayersProvider: FC = ({ children }) => {
     const [layersConfig, setLayersConfig] = useState<LayerConfig[]>([]);
+    const [files, setFiles] = useState<File[]>([]);
     const { images, traits, generateImages } = useCombinator({});
 
     useEffect(() => {
         generateImages([]);
     }, [layersConfig]);
+
+    useEffect(() => {
+        const files = images.map(
+            (e, i) =>
+                new File([e], i.toString(), {
+                    type: 'image/png',
+                }),
+        );
+
+        setFiles(files);
+    }, [images]);
 
     const combineLayers = () => {
         return generateImages(layersConfig);
@@ -138,6 +152,7 @@ export const LayersProvider: FC = ({ children }) => {
                 removeLayer,
                 images,
                 traits,
+                files,
                 layers: layersConfig,
             }}
         >

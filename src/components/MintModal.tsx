@@ -1,4 +1,6 @@
-import axios from 'axios';
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-unused-vars */
+/* eslint-disable camelcase */
 import {
     Button,
     List,
@@ -10,46 +12,52 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import { HiArrowSmRight, HiCheck } from 'react-icons/hi';
-import { useMoralis, useMoralisFile, useWeb3ExecuteFunction } from 'react-moralis';
 
 import { abi } from '../../artifacts/contracts/LayeralizeFactoryContract.sol/LayeralizeFactoryContract.json';
-import useError from '../hooks/error';
+import { useAccount } from 'wagmi';
 
 const CONTRACT_ADDRESS = '0x0BD6166f462896AeaC4ba5cABDbf2c2eDbDD076C';
 
-function leftFillNum(num: number, targetLength: number) {
-    return num.toString().padStart(targetLength, '0');
-}
+const pushImages = async (files: File[]) => {
+    const formData = new FormData();
 
-const createFolderIPFS = async (content: any) => {
-    try {
-        const res = await axios.post(
-            'https://deep-index.moralis.io/api/v2/ipfs/uploadFolder',
-            content,
-            {
-                headers: {
-                    'X-API-Key': 'NNOI1SY6ieKzX3kBRjKHQNMunOVQ8oa66uaW4O18gu8Z2cizt6NNZctPlXPjdj4T',
-                    'Content-Type': 'application/json',
-                    'accept': 'application/json',
-                },
-            },
-        );
-
-        const exampleUri = res.data[0].path;
-
-        return exampleUri.substr(exampleUri.indexOf('Qm'), 46);
-    } catch (error) {
-        // console.log(error);
+    for (const file of files) {
+        formData.append(file.name, file);
     }
+
+    const response = await fetch('https://lucho-nft.herokuapp.com/nft/images', {
+        method: 'POST',
+        body: formData,
+    });
+
+    return response.json();
 };
 
-const getMetadataERC1155 = (imageHash: string, attrs: any[], i: number) => {
+const pushMetadata = async (filenames: string[], attrs: any[]) => {
+    const metadata = filenames.map((filename, idx) =>
+        getMetadataERC1155(filename, attrs[idx], idx),
+    );
+
+    const response = await fetch('https://lucho-nft.herokuapp.com/nft/metadata', {
+        method: 'POST',
+        body: JSON.stringify({
+            metadata,
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    return response.json();
+};
+
+const getMetadataERC1155 = (filename: string, attrs: any[], i: number) => {
     return {
         description: `Test collection. Layeralize. ETH GLOBAL 2022. Token #${i}`,
         external_url: 'https://github.com/garciagomezluis/web3-ethglobal',
-        image: `ipfs://${imageHash}/images/${leftFillNum(i, 64)}.png`,
+        image: filename,
         name: `Layeralize ETH Global Collection #${i}`,
         attributes: attrs.map((attr: any) => {
             return {
@@ -60,106 +68,80 @@ const getMetadataERC1155 = (imageHash: string, attrs: any[], i: number) => {
     };
 };
 
-export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
-    const { error } = useMoralisFile();
-    const { account } = useMoralis();
-
-    const { showError } = useError({ showErrorTitle: 'Please, retry' });
-
-    const { fetch } = useWeb3ExecuteFunction();
-
-    const [uploading, setUploading] = useState(false);
-    const [uploadingImage, setUploadingImage] = useState(false);
-    const [uploadingMetadata, setUploadingMetadata] = useState(false);
-    const [makingTransaction, setMakingTransaction] = useState(false);
+const useJob = (job: (...args: any[]) => any) => {
+    const [doing, setDoing] = useState(false);
     const [done, setDone] = useState(false);
 
-    useEffect(() => {
-        if (done) {
-            setUploadingImage(false);
-            setUploadingMetadata(false);
-            setMakingTransaction(false);
-        }
-    }, [done]);
+    const go = async (...args: any[]) => {
+        setDone(false);
+        setDoing(true);
 
-    useEffect(() => {
-        if (error) {
-            showError(error.message);
-        }
-    }, [error]);
+        const response = await job(...args);
+
+        setDoing(false);
+        setDone(true);
+
+        return response;
+    };
+
+    return { go, done, doing };
+};
+
+const useTransaction = () => {
+    const pushTransaction = async (cid: string, amount: number) => {
+        // await fetch({
+        //     params: {
+        //         abi,
+        //         contractAddress: CONTRACT_ADDRESS,
+        //         functionName: 'createCollection',
+        //         params: {
+        //             ipfsCID: cid,
+        //             amount,
+        //         },
+        //     },
+        // });
+    };
+
+    return { pushTransaction };
+};
+
+const usePublish = () => {
+    const { pushTransaction } = useTransaction();
+    const images = useJob(pushImages);
+    const metadata = useJob(pushMetadata);
+    const transaction = useJob(pushTransaction);
+
+    const publish = async (files: File[], attrs: any[]) => {
+        const { filenames } = await images.go(files);
+
+        const { cid } = await metadata.go(filenames, attrs);
+
+        // await uploadTransaction(cid, files.length);
+    };
+
+    return {
+        images,
+        metadata,
+        transaction,
+        publish,
+    };
+};
+
+export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
+    const { images, metadata, transaction, publish } = usePublish();
+
+    const { go, done, doing } = useJob(publish);
+
+    const { address } = useAccount();
+
+    const { doing: uploadingImage } = images;
+    const { doing: uploadingMetadata } = metadata;
+    const { doing: uploadingTransaction } = transaction;
 
     const onMintConfirm = async () => {
-        if (done) {
-            setDone(false);
+        await go(files, attrs);
 
-            return onClose();
-        }
-
-        setUploading(true);
-
-        const ipfsCidImages = await uploadImages();
-
-        const ipfsCidMetadata = await uploadMetadata(ipfsCidImages);
-
-        setUploading(false);
-
-        // console.log(ipfsCidMetadata);
-
-        setMakingTransaction(true);
-
-        await fetch({
-            params: {
-                abi,
-                contractAddress: CONTRACT_ADDRESS,
-                functionName: 'createCollection',
-                params: {
-                    ipfsCID: ipfsCidMetadata,
-                    amount: files.length,
-                },
-            },
-        });
-
-        setMakingTransaction(false);
-
-        setDone(true);
-    };
-
-    const uploadImages = async () => {
-        setUploadingImage(true);
-
-        const ipfsContent = [];
-
-        for (let i = 0; i < files.length; i++) {
-            ipfsContent.push({
-                path: `images/${leftFillNum(i, 64)}.png`,
-                content: files[i],
-            });
-        }
-
-        const ipfsCid = await createFolderIPFS(ipfsContent);
-
-        setUploadingImage(false);
-
-        return ipfsCid;
-    };
-
-    const uploadMetadata = async (ipfsCidImages: string) => {
-        setUploadingMetadata(true);
-
-        const ipfsContent = [];
-
-        for (let i = 0; i < files.length; i++) {
-            ipfsContent.push({
-                path: `metadata/${leftFillNum(i, 64)}.json`,
-                content: getMetadataERC1155(ipfsCidImages, attrs[i], i),
-            });
-        }
-
-        const ipfsCid = await createFolderIPFS(ipfsContent);
-
-        setUploadingMetadata(false);
-
-        return ipfsCid;
+        onClose();
     };
 
     return (
@@ -167,7 +149,7 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
             <ModalHeader>Collection minting</ModalHeader>
             <ModalBody>
                 <>
-                    <VStack display={uploading || done ? 'flex' : 'none'} w="full">
+                    <VStack display={doing || done ? 'flex' : 'none'} w="full">
                         <Text color="pink.500" fontWeight="bold" w="full">
                             Uploading resources
                         </Text>
@@ -192,13 +174,13 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
                             </ListItem>
                         </List>
                     </VStack>
-                    <VStack display={uploading || done ? 'flex' : 'none'} mt="5" w="full">
+                    <VStack display={doing || done ? 'flex' : 'none'} mt="5" w="full">
                         <Text color="pink.500" fontWeight="bold" w="full">
                             Finally
                         </Text>
                         <List spacing={3} w="full">
                             <ListItem>
-                                {(makingTransaction || done) && (
+                                {(uploadingTransaction || done) && (
                                     <ListIcon
                                         as={done ? HiCheck : HiArrowSmRight}
                                         color="pink.500"
@@ -209,20 +191,20 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
                         </List>
                     </VStack>
                 </>
-                <VStack display={!uploading && !done ? 'flex' : 'none'}>
+                <VStack display={!doing && !done ? 'flex' : 'none'}>
                     <Text>
                         {files.length} images will integrate the collection. This might take a few
                         minutes. You will be required to sign a transaction as the last operation
                         with a network fee. Please, do not close the tab once confirmed.
                     </Text>
-                    <Text mt="2">{account}</Text>
+                    <Text mt="2">{address}</Text>
                 </VStack>
             </ModalBody>
 
             <ModalFooter>
                 <Button
                     colorScheme="pink"
-                    isLoading={uploading}
+                    isLoading={doing}
                     loadingText="Loading"
                     onClick={onMintConfirm}
                 >

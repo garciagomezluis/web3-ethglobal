@@ -16,16 +16,15 @@ import Preview from './Preview';
 import { useAccount } from 'wagmi';
 import { useLayers } from '../LayersContext';
 import { useModal } from './Modal';
-import { useMoralisFile } from 'react-moralis';
 
 const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
-    const { isUploading } = useMoralisFile();
+    const { isUploading } = { isUploading: false };
 
     const { isConnected } = useAccount();
 
     const { open, close } = useModal();
 
-    const { images, traits } = useLayers();
+    const { files, images, traits } = useLayers();
 
     const openModal = () => {
         open({
@@ -33,7 +32,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
             props: {
                 onClose: close,
                 attrs: traits,
-                files: images,
+                files,
             },
             locked: false,
         });
