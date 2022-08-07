@@ -12,11 +12,16 @@ import {
     Text,
     VStack,
 } from '@chakra-ui/react';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { HiArrowSmRight, HiCheck } from 'react-icons/hi';
 
 import { abi } from '../../artifacts/contracts/LayeralizeFactoryContract.sol/LayeralizeFactoryContract.json';
-import { useAccount } from 'wagmi';
+import {
+    useAccount,
+    useContractWrite,
+    usePrepareContractWrite,
+    useWaitForTransaction,
+} from 'wagmi';
 
 const CONTRACT_ADDRESS = '0x0BD6166f462896AeaC4ba5cABDbf2c2eDbDD076C';
 
@@ -71,134 +76,166 @@ const getMetadataERC1155 = (filename: string, attrs: any[], i: number) => {
 const useJob = (job: (...args: any[]) => any) => {
     const [doing, setDoing] = useState(false);
     const [done, setDone] = useState(false);
+    const [data, setData] = useState(null);
 
     const go = async (...args: any[]) => {
         setDone(false);
         setDoing(true);
+
+        setData(null);
 
         const response = await job(...args);
 
         setDoing(false);
         setDone(true);
 
+        setData(response);
+
         return response;
     };
 
-    return { go, done, doing };
+    return { go, done, doing, data };
 };
 
-const useTransaction = () => {
-    const pushTransaction = async (cid: string, amount: number) => {
-        // await fetch({
-        //     params: {
-        //         abi,
-        //         contractAddress: CONTRACT_ADDRESS,
-        //         functionName: 'createCollection',
-        //         params: {
-        //             ipfsCID: cid,
-        //             amount,
-        //         },
-        //     },
-        // });
-    };
+const useContract = (cid: string | null, amount: number) => {
+    const { config } = usePrepareContractWrite({
+        addressOrName: CONTRACT_ADDRESS,
+        contractInterface: abi,
+        functionName: 'createCollection',
+        enabled: cid !== null,
+        args: [cid, amount],
+    });
 
-    return { pushTransaction };
+    const { write, data } = useContractWrite(config);
+
+    const { isLoading, isSuccess, isError } = useWaitForTransaction({
+        hash: data?.hash,
+    });
+
+    return { write, doing: isLoading, done: isSuccess || isError };
 };
 
-const usePublish = () => {
-    const { pushTransaction } = useTransaction();
+const usePublish = (files: File[], attrs: any[]) => {
     const images = useJob(pushImages);
     const metadata = useJob(pushMetadata);
-    const transaction = useJob(pushTransaction);
 
-    const publish = async (files: File[], attrs: any[]) => {
+    const publish = async () => {
         const { filenames } = await images.go(files);
 
         const { cid } = await metadata.go(filenames, attrs);
 
-        // await uploadTransaction(cid, files.length);
+        return cid;
     };
 
     return {
         images,
         metadata,
-        transaction,
         publish,
     };
 };
 
-export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
-    const { images, metadata, transaction, publish } = usePublish();
+const Item: FC<{ doing: boolean; done: boolean }> = ({ doing, done, children }) => {
+    let Icon;
 
-    const { go, done, doing } = useJob(publish);
+    if (doing) Icon = HiArrowSmRight;
+    if (done) Icon = HiCheck;
+
+    return (
+        <ListItem>
+            {Icon && <ListIcon as={Icon} color="pink.500" />}
+            {children}
+        </ListItem>
+    );
+};
+
+const StepsView: FC<{
+    images: any;
+    metadata: any;
+    tx: any;
+}> = ({ images, metadata, tx }) => {
+    const { doing: doingImages, done: doneImages } = images;
+    const { doing: doingMetadata, done: doneMetadata } = metadata;
+    const { doing: doingTx, done: doneTx } = tx;
+
+    return (
+        <>
+            <VStack w="full">
+                <Text color="pink.500" fontWeight="bold" w="full">
+                    Uploading resources
+                </Text>
+                <List mt="15px !important" spacing={3} w="full">
+                    <Item doing={doingImages} done={doneImages}>
+                        Uploading images to IPFS
+                    </Item>
+                    <Item doing={doingMetadata} done={doneMetadata}>
+                        Uploading NFTs metadata
+                    </Item>
+                </List>
+            </VStack>
+            <VStack mt="5" w="full">
+                <Text color="pink.500" fontWeight="bold" w="full">
+                    Finally
+                </Text>
+                <List spacing={3} w="full">
+                    <Item doing={doingTx} done={doneTx}>
+                        Transaction sign
+                    </Item>
+                </List>
+            </VStack>
+        </>
+    );
+};
+
+export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
+    const { images, metadata, publish } = usePublish(files, attrs);
+
+    const { go: push, done: doneUpload, doing: doingUpload, data: cid } = useJob(publish);
+
+    const { write, done: doneTx, doing: doingTx } = useContract(cid, files.length);
 
     const { address } = useAccount();
 
-    const { doing: uploadingImage } = images;
-    const { doing: uploadingMetadata } = metadata;
-    const { doing: uploadingTransaction } = transaction;
+    const doing = doingUpload || doingTx;
+    const done = doneUpload || doneTx;
 
     const onMintConfirm = async () => {
-        await go(files, attrs);
+        if (done) {
+            onClose();
 
-        onClose();
+            return;
+        }
+
+        await push(files, attrs);
     };
+
+    useEffect(() => {
+        if (doneUpload && write) {
+            write();
+        }
+    }, [write]);
 
     return (
         <>
             <ModalHeader>Collection minting</ModalHeader>
             <ModalBody>
-                <>
-                    <VStack display={doing || done ? 'flex' : 'none'} w="full">
-                        <Text color="pink.500" fontWeight="bold" w="full">
-                            Uploading resources
+                {(doing || done) && (
+                    <StepsView
+                        images={images}
+                        metadata={metadata}
+                        tx={{ doing: doingTx, done: doneTx }}
+                    />
+                )}
+                {!(doing || done) && (
+                    <VStack>
+                        <Text>
+                            {files.length} images will integrate the collection. This might take a
+                            few minutes. You will be required to sign a transaction as the last
+                            operation with a network fee. Please, do not close the tab once
+                            confirmed.
                         </Text>
-                        <List mt="15px !important" spacing={3} w="full">
-                            <ListItem>
-                                {(uploadingImage || done) && (
-                                    <ListIcon
-                                        as={done ? HiCheck : HiArrowSmRight}
-                                        color="pink.500"
-                                    />
-                                )}
-                                Uploading images to IPFS
-                            </ListItem>
-                            <ListItem>
-                                {(uploadingMetadata || done) && (
-                                    <ListIcon
-                                        as={done ? HiCheck : HiArrowSmRight}
-                                        color="pink.500"
-                                    />
-                                )}
-                                Uploading NFTs metadata
-                            </ListItem>
-                        </List>
+                        <Text mt="2">{address}</Text>
                     </VStack>
-                    <VStack display={doing || done ? 'flex' : 'none'} mt="5" w="full">
-                        <Text color="pink.500" fontWeight="bold" w="full">
-                            Finally
-                        </Text>
-                        <List spacing={3} w="full">
-                            <ListItem>
-                                {(uploadingTransaction || done) && (
-                                    <ListIcon
-                                        as={done ? HiCheck : HiArrowSmRight}
-                                        color="pink.500"
-                                    />
-                                )}
-                                Transaction sign
-                            </ListItem>
-                        </List>
-                    </VStack>
-                </>
-                <VStack display={!doing && !done ? 'flex' : 'none'}>
-                    <Text>
-                        {files.length} images will integrate the collection. This might take a few
-                        minutes. You will be required to sign a transaction as the last operation
-                        with a network fee. Please, do not close the tab once confirmed.
-                    </Text>
-                    <Text mt="2">{address}</Text>
-                </VStack>
+                )}
             </ModalBody>
 
             <ModalFooter>

@@ -34,7 +34,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                 attrs: traits,
                 files,
             },
-            locked: false,
+            locked: true,
         });
     };
 

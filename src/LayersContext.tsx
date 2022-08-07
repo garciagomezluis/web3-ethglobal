@@ -44,6 +44,12 @@ export const useLayers = () => {
     return useContext(LayersContext);
 };
 
+function urltoFile(url: string, filename: string, mimeType = 'image/png') {
+    return fetch(url)
+        .then((res) => res.arrayBuffer())
+        .then((buf) => new File([buf], filename, { type: mimeType }));
+}
+
 export const LayersProvider: FC = ({ children }) => {
     const [layersConfig, setLayersConfig] = useState<LayerConfig[]>([]);
     const [files, setFiles] = useState<File[]>([]);
@@ -54,14 +60,9 @@ export const LayersProvider: FC = ({ children }) => {
     }, [layersConfig]);
 
     useEffect(() => {
-        const files = images.map(
-            (e, i) =>
-                new File([e], i.toString(), {
-                    type: 'image/png',
-                }),
-        );
+        const promises = images.map((e, i) => urltoFile(e, i.toString()));
 
-        setFiles(files);
+        Promise.all(promises).then(setFiles);
     }, [images]);
 
     const combineLayers = () => {
