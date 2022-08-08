@@ -262,12 +262,7 @@ export const MintModal: FC<any> = ({ onMintStart, onMintEnd, files, attrs }) => 
                 )}
             </ModalBody>
             <ModalFooter>
-                <Button
-                    colorScheme="pink"
-                    isLoading={doing}
-                    loadingText="Loading"
-                    onClick={onMintConfirm}
-                >
+                <Button isLoading={doing} loadingText="Loading" onClick={onMintConfirm}>
                     {done ? 'Done' : 'Confirm'}
                 </Button>
             </ModalFooter>

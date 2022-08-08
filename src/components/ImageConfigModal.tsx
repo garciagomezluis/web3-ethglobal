@@ -96,9 +96,7 @@ export const ImageConfigModal: FC<ImageConfigModalProps> = ({
                 <Button mr={3} variant="ghost" onClick={onClose}>
                     Close
                 </Button>
-                <Button colorScheme="pink" onClick={onClickSave}>
-                    Save
-                </Button>
+                <Button onClick={onClickSave}>Save</Button>
             </ModalFooter>
         </>
     );

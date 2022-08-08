@@ -46,21 +46,18 @@ export const Preview: FC<PreviewProps> = ({ images, traits }) => {
                     <IconButton
                         disabled
                         aria-label="remove"
-                        colorScheme="pink"
                         icon={<BsTrash />}
                         onClick={() => {}}
                     />
                     <Spacer />
                     <IconButton
                         aria-label="prev"
-                        colorScheme="pink"
                         disabled={atLowest}
                         icon={<AiOutlineArrowLeft />}
                         onClick={decrement}
                     />
                     <IconButton
                         aria-label="next"
-                        colorScheme="pink"
                         disabled={atGreatest}
                         icon={<AiOutlineArrowRight />}
                         onClick={increment}

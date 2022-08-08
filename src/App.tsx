@@ -1,8 +1,19 @@
-import { Accordion, Button, Container, HStack, Spacer, useDisclosure } from '@chakra-ui/react';
+import {
+    Accordion,
+    Button,
+    Container,
+    HStack,
+    IconButton,
+    Spacer,
+    useColorMode,
+    useDisclosure,
+} from '@chakra-ui/react';
 
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
+import { FaMoon, FaSun } from 'react-icons/fa';
+
 import { FC, useEffect } from 'react';
 
 import { useLayers } from './LayersContext';
@@ -23,16 +34,14 @@ const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
 
     return (
         <>
-            <Button colorScheme="pink" disabled={!dirty} onClick={reset}>
+            <Button disabled={!dirty} onClick={reset}>
                 Clear
             </Button>
             <Spacer />
-            <Button colorScheme="pink" leftIcon={<AiFillPlusCircle />} onClick={createLayer}>
+            <Button leftIcon={<AiFillPlusCircle />} onClick={createLayer}>
                 Add layer
             </Button>
-            <Button colorScheme="pink" onClick={handleOpenPreview}>
-                Preview
-            </Button>
+            <Button onClick={handleOpenPreview}>Preview</Button>
         </>
     );
 };
@@ -55,6 +64,8 @@ function App() {
         reset();
     };
 
+    const { colorMode, toggleColorMode } = useColorMode();
+
     return (
         <>
             <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} onMintEnd={onMintEnd} />
@@ -62,6 +73,12 @@ function App() {
             <Container maxW="container.xl" p="4">
                 <HStack>
                     <Spacer />
+                    <IconButton
+                        aria-label="toggle color mode"
+                        icon={colorMode === 'light' ? <FaMoon /> : <FaSun />}
+                        mx="10px !important"
+                        onClick={toggleColorMode}
+                    />
                     <ConnectButton />
                 </HStack>
             </Container>

@@ -52,7 +52,6 @@ const LayerMenu: FC<{ id: string }> = ({ id }) => {
             {allowMoveUp && (
                 <IconButton
                     aria-label="move up"
-                    colorScheme="pink"
                     icon={<AiOutlineArrowUp />}
                     onClick={() => moveLayer(id, 'up')}
                 />
@@ -60,17 +59,12 @@ const LayerMenu: FC<{ id: string }> = ({ id }) => {
             {allowMoveDown && (
                 <IconButton
                     aria-label="move down"
-                    colorScheme="pink"
                     icon={<AiOutlineArrowDown />}
                     onClick={() => moveLayer(id, 'down')}
                 />
             )}
             {allowDelete && (
-                <Button
-                    colorScheme="pink"
-                    leftIcon={<AiFillCloseCircle />}
-                    onClick={() => removeLayer(id)}
-                >
+                <Button leftIcon={<AiFillCloseCircle />} onClick={() => removeLayer(id)}>
                     Remove
                 </Button>
             )}

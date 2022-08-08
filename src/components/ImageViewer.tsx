@@ -20,22 +20,10 @@ const ImageOptions: FC<{
 
     return (
         <VStack __css={styles}>
-            <Button
-                colorScheme="pink"
-                leftIcon={<AiFillEdit />}
-                my="10px !important"
-                w="70%"
-                onClick={openModal}
-            >
+            <Button leftIcon={<AiFillEdit />} my="10px !important" w="70%" onClick={openModal}>
                 Edit properties
             </Button>
-            <Button
-                colorScheme="pink"
-                leftIcon={<AiFillCloseCircle />}
-                my="10px !important"
-                w="70%"
-                onClick={remove}
-            >
+            <Button leftIcon={<AiFillCloseCircle />} my="10px !important" w="70%" onClick={remove}>
                 Remove
             </Button>
         </VStack>

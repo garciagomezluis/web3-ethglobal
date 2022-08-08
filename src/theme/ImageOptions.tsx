@@ -1,5 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-
 const theme = {
     // The base styles for each part
     baseStyle: {
