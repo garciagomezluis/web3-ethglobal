@@ -17,12 +17,10 @@ import { useAccount } from 'wagmi';
 import { useLayers } from '../LayersContext';
 import { useModal } from './Modal';
 
-const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
-    const { isUploading } = { isUploading: false };
-
+const PreviewDrawer: FC<any> = ({ isOpen, onClose, onMintEnd }) => {
     const { isConnected } = useAccount();
 
-    const { open, close } = useModal();
+    const { open, close, toggleLock } = useModal();
 
     const { files, images, traits } = useLayers();
 
@@ -30,11 +28,15 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
         open({
             element: MintModal,
             props: {
-                onClose: close,
+                onMintEnd: () => {
+                    close();
+                    onMintEnd();
+                },
+                onMintStart: () => toggleLock(),
                 attrs: traits,
                 files,
             },
-            locked: true,
+            locked: false,
             title: 'Collection minting',
         });
     };
@@ -50,7 +52,6 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                     <Preview images={images} traits={traits} />
                 </DrawerBody>
                 <DrawerFooter>
-                    {isUploading ? 'loading...' : ''}
                     <HStack w="full">
                         <Spacer />
                         <Button colorScheme="pink" disabled={!isConnected} onClick={openModal}>

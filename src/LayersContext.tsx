@@ -16,10 +16,12 @@ type LayersContextType = {
     moveLayer: (id: string, direction: UpDownType) => void;
     createLayer: () => void;
     removeLayer: (id: string) => void;
+    reset: () => void;
     images: string[];
     traits: TraitInfo[][];
     files: File[];
     layers: LayerConfig[];
+    dirty: boolean;
 };
 
 const defaultContext: LayersContextType = {
@@ -32,10 +34,12 @@ const defaultContext: LayersContextType = {
     moveLayer: () => {},
     createLayer: () => {},
     removeLayer: () => {},
+    reset: () => {},
     images: [],
     traits: [],
     files: [],
     layers: [],
+    dirty: false,
 };
 
 const LayersContext = createContext<LayersContextType>(defaultContext);
@@ -54,9 +58,12 @@ export const LayersProvider: FC = ({ children }) => {
     const [layersConfig, setLayersConfig] = useState<LayerConfig[]>([]);
     const [files, setFiles] = useState<File[]>([]);
     const { images, traits, generateImages } = useCombinator({});
+    const [dirty, setDirty] = useState(false);
 
     useEffect(() => {
         generateImages([]);
+
+        setDirty(layersConfig.some(({ images }) => images.length !== 0));
     }, [layersConfig]);
 
     useEffect(() => {
@@ -112,6 +119,12 @@ export const LayersProvider: FC = ({ children }) => {
         ]);
     };
 
+    const reset = () => {
+        setLayersConfig([]);
+        createLayer();
+        createLayer();
+    };
+
     const removeLayer = (id: string) => {
         setLayersConfig((layers) => layers.filter((l) => l.id !== id));
     };
@@ -151,10 +164,12 @@ export const LayersProvider: FC = ({ children }) => {
                 moveLayer,
                 createLayer,
                 removeLayer,
+                reset,
                 images,
                 traits,
                 files,
                 layers: layersConfig,
+                dirty,
             }}
         >
             {children}

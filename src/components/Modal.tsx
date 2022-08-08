@@ -20,9 +20,11 @@ type ModalConfigType = {
 const ModalContext = createContext<{
     open: (modalConfig: ModalConfigType) => void;
     close: () => void;
+    toggleLock: () => void;
 }>({
     open: () => {},
     close: () => {},
+    toggleLock: () => {},
 });
 
 export const useModal = () => {
@@ -57,8 +59,12 @@ export const ModalProvider: FC = ({ children }) => {
         onClose();
     };
 
+    const toggleLock = () => {
+        setModalConfig((config) => ({ ...config, locked: !config.locked }));
+    };
+
     return (
-        <ModalContext.Provider value={{ open, close }}>
+        <ModalContext.Provider value={{ open, close, toggleLock }}>
             <Modal
                 closeOnEsc={!locked}
                 closeOnOverlayClick={!locked}

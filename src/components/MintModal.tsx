@@ -196,7 +196,7 @@ const StepsView: FC<{
     );
 };
 
-export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
+export const MintModal: FC<any> = ({ onMintStart, onMintEnd, files, attrs }) => {
     const [status, setStatus] = useState('');
 
     const { images, metadata, publish } = usePublish(files, attrs);
@@ -220,10 +220,12 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
 
     const onMintConfirm = async () => {
         if (done) {
-            onClose();
+            onMintEnd();
 
             return;
         }
+
+        onMintStart();
 
         await push(files, attrs);
     };

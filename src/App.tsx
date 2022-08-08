@@ -12,7 +12,7 @@ import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
 
 const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
-    const { combineLayers, createLayer } = useLayers();
+    const { combineLayers, createLayer, reset, dirty } = useLayers();
     const { showError } = useError({ showErrorTitle: 'Please check' });
 
     const handleOpenPreview = () => {
@@ -23,6 +23,10 @@ const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
 
     return (
         <>
+            <Button colorScheme="pink" disabled={!dirty} onClick={reset}>
+                Clear
+            </Button>
+            <Spacer />
             <Button colorScheme="pink" leftIcon={<AiFillPlusCircle />} onClick={createLayer}>
                 Add layer
             </Button>
@@ -34,7 +38,7 @@ const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
 };
 
 function App() {
-    const { layers, createLayer } = useLayers();
+    const { layers, reset } = useLayers();
 
     const {
         isOpen: isPreviewOpen,
@@ -43,13 +47,17 @@ function App() {
     } = useDisclosure();
 
     useEffect(() => {
-        createLayer();
-        createLayer();
+        reset();
     }, []);
+
+    const onMintEnd = () => {
+        onPreviewClose();
+        reset();
+    };
 
     return (
         <>
-            <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} />
+            <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} onMintEnd={onMintEnd} />
 
             <Container maxW="container.xl" p="4">
                 <HStack>
@@ -59,7 +67,7 @@ function App() {
             </Container>
 
             <Container maxW="container.xl" p="4">
-                <Accordion>
+                <Accordion allowToggle>
                     {layers.map(({ id, name }) => (
                         <Layer key={id} id={id} name={name} />
                     ))}
