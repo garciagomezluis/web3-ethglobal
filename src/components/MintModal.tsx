@@ -3,12 +3,12 @@
 /* eslint-disable camelcase */
 import {
     Button,
+    Link,
     List,
     ListIcon,
     ListItem,
     ModalBody,
     ModalFooter,
-    ModalHeader,
     Text,
     VStack,
 } from '@chakra-ui/react';
@@ -106,13 +106,13 @@ const useContract = (cid: string | null, amount: number) => {
         args: [cid, amount],
     });
 
-    const { write, data } = useContractWrite(config);
+    const { writeAsync, data } = useContractWrite(config);
 
     const { isLoading, isSuccess, isError } = useWaitForTransaction({
         hash: data?.hash,
     });
 
-    return { write, doing: isLoading, done: isSuccess || isError };
+    return { writeAsync, doing: isLoading, done: isSuccess || isError, txHash: data?.hash };
 };
 
 const usePublish = (files: File[], attrs: any[]) => {
@@ -155,7 +155,7 @@ const StepsView: FC<{
 }> = ({ images, metadata, tx }) => {
     const { doing: doingImages, done: doneImages } = images;
     const { doing: doingMetadata, done: doneMetadata } = metadata;
-    const { doing: doingTx, done: doneTx } = tx;
+    const { doing: doingTx, done: doneTx, hash } = tx;
 
     return (
         <>
@@ -179,6 +179,16 @@ const StepsView: FC<{
                 <List spacing={3} w="full">
                     <Item doing={doingTx} done={doneTx}>
                         Transaction sign
+                        {hash && (
+                            <Link
+                                color="pink.500"
+                                href={`https://mumbai.polygonscan.com/tx/${hash}`}
+                                ml="20"
+                                target="_blank"
+                            >
+                                View on block explorer
+                            </Link>
+                        )}
                     </Item>
                 </List>
             </VStack>
@@ -187,16 +197,26 @@ const StepsView: FC<{
 };
 
 export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
+    const [status, setStatus] = useState('');
+
     const { images, metadata, publish } = usePublish(files, attrs);
 
     const { go: push, done: doneUpload, doing: doingUpload, data: cid } = useJob(publish);
 
-    const { write, done: doneTx, doing: doingTx } = useContract(cid, files.length);
+    const { writeAsync, done: doneTx, txHash } = useContract(cid, files.length);
+
+    const doingTx = doneUpload && !doneTx;
+
+    const tx = {
+        doing: doingTx,
+        done: doneTx,
+        hash: txHash,
+    };
 
     const { address } = useAccount();
 
-    const doing = doingUpload || doingTx;
-    const done = doneUpload || doneTx;
+    const doing = (doingUpload || doingTx) && status === '';
+    const done = (doneUpload || doneTx) && status !== '';
 
     const onMintConfirm = async () => {
         if (done) {
@@ -209,21 +229,23 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
     };
 
     useEffect(() => {
-        if (doneUpload && write) {
-            write();
+        if (doneUpload && writeAsync) {
+            writeAsync()
+                .then(() => setStatus('Collection uploaded successfully.'))
+                .catch((error) =>
+                    setStatus('Failed: Please, check the transaction and try again.'),
+                );
         }
-    }, [write]);
+    }, [writeAsync]);
 
     return (
         <>
-            <ModalHeader>Collection minting</ModalHeader>
             <ModalBody>
                 {(doing || done) && (
-                    <StepsView
-                        images={images}
-                        metadata={metadata}
-                        tx={{ doing: doingTx, done: doneTx }}
-                    />
+                    <>
+                        <StepsView images={images} metadata={metadata} tx={tx} />
+                        {status && <Text mt="5">{status}</Text>}
+                    </>
                 )}
                 {!(doing || done) && (
                     <VStack>
@@ -237,7 +259,6 @@ export const MintModal: FC<any> = ({ onClose, files, attrs }) => {
                     </VStack>
                 )}
             </ModalBody>
-
             <ModalFooter>
                 <Button
                     colorScheme="pink"

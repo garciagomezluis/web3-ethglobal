@@ -88,7 +88,6 @@ export const ImageConfigModal: FC<ImageConfigModalProps> = ({
 
     return (
         <>
-            <ModalHeader>Image properties</ModalHeader>
             <ModalBody>
                 <ConfigForm {...{ config, setConfig }} />
             </ModalBody>

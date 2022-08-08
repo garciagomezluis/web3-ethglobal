@@ -66,6 +66,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({ item, remove, update }) => {
                 defaultConfig: config,
             },
             locked: false,
+            title: 'Image properties',
         });
     };
 

@@ -35,6 +35,7 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose }) => {
                 files,
             },
             locked: true,
+            title: 'Collection minting',
         });
     };
 

@@ -3,6 +3,7 @@ import {
     Modal,
     ModalCloseButton,
     ModalContent,
+    ModalHeader,
     ModalOverlay,
     useDisclosure,
 } from '@chakra-ui/react';
@@ -13,6 +14,7 @@ type ModalConfigType = {
     element: FC<any> | null;
     props: any;
     locked?: boolean;
+    title: string;
 };
 
 const ModalContext = createContext<{
@@ -31,18 +33,21 @@ const defaultModalConfig: ModalConfigType = {
     element: null,
     props: {},
     locked: false,
+    title: '',
 };
 
 export const ModalProvider: FC = ({ children }) => {
-    const [{ element: Element, props, locked }, setModalConfig] = useState(defaultModalConfig);
+    const [{ element: Element, props, locked, title }, setModalConfig] =
+        useState(defaultModalConfig);
 
     const { isOpen, onClose, onOpen } = useDisclosure();
 
-    const open = ({ element, props, locked = false }: ModalConfigType) => {
+    const open = ({ element, props, locked = false, title }: ModalConfigType) => {
         setModalConfig({
             locked,
             element,
             props,
+            title,
         });
         onOpen();
     };
@@ -62,8 +67,9 @@ export const ModalProvider: FC = ({ children }) => {
             >
                 <ModalOverlay />
                 <ModalContent>
-                    {/* TODO: Move this button inside the ModalHeader */}
+                    <ModalHeader>{title}</ModalHeader>
                     <ModalCloseButton disabled={locked} />
+
                     {Element !== null && <Element {...props} />}
                 </ModalContent>
             </Modal>
