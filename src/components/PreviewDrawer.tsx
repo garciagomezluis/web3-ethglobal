@@ -28,9 +28,9 @@ const PreviewDrawer: FC<any> = ({ isOpen, onClose, onMintEnd }) => {
         open({
             element: MintModal,
             props: {
-                onMintEnd: () => {
+                onMintEnd: (error: unknown) => {
                     close();
-                    onMintEnd();
+                    if (!error) onMintEnd();
                 },
                 onMintStart: () => toggleLock(),
                 attrs: traits,
