@@ -3,6 +3,7 @@
 /* eslint-disable camelcase */
 import {
     Button,
+    Code,
     Link,
     List,
     ListIcon,
@@ -13,7 +14,7 @@ import {
     VStack,
 } from '@chakra-ui/react';
 import { FC, useEffect, useState } from 'react';
-import { HiArrowSmRight, HiCheck } from 'react-icons/hi';
+import { HiArrowSmRight, HiCheck, HiMinusSm, HiX } from 'react-icons/hi';
 
 import { abi } from '../../artifacts/contracts/LayeralizeFactoryContract.sol/LayeralizeFactoryContract.json';
 import {
@@ -22,6 +23,8 @@ import {
     usePrepareContractWrite,
     useWaitForTransaction,
 } from 'wagmi';
+
+import { usePage } from '../hooks/page';
 
 const CONTRACT_ADDRESS = '0x0BD6166f462896AeaC4ba5cABDbf2c2eDbDD076C';
 
@@ -77,6 +80,7 @@ const useJob = (job: (...args: any[]) => any) => {
     const [doing, setDoing] = useState(false);
     const [done, setDone] = useState(false);
     const [data, setData] = useState(null);
+    const [error, setError] = useState<unknown>();
 
     const go = async (...args: any[]) => {
         setDone(false);
@@ -84,7 +88,13 @@ const useJob = (job: (...args: any[]) => any) => {
 
         setData(null);
 
-        const response = await job(...args);
+        let response = null;
+
+        try {
+            response = await job(...args);
+        } catch (err) {
+            setError(err);
+        }
 
         setDoing(false);
         setDone(true);
@@ -94,7 +104,7 @@ const useJob = (job: (...args: any[]) => any) => {
         return response;
     };
 
-    return { go, done, doing, data };
+    return { go, done, doing, data, error };
 };
 
 const useContract = (cid: string | null, amount: number) => {
@@ -108,11 +118,15 @@ const useContract = (cid: string | null, amount: number) => {
 
     const { writeAsync, data } = useContractWrite(config);
 
-    const { isLoading, isSuccess, isError } = useWaitForTransaction({
+    const { status } = useWaitForTransaction({
         hash: data?.hash,
     });
 
-    return { writeAsync, doing: isLoading, done: isSuccess || isError, txHash: data?.hash };
+    return {
+        writeAsync,
+        status,
+        txHash: data?.hash,
+    };
 };
 
 const usePublish = (files: File[], attrs: any[]) => {
@@ -134,11 +148,17 @@ const usePublish = (files: File[], attrs: any[]) => {
     };
 };
 
-const Item: FC<{ doing: boolean; done: boolean }> = ({ doing, done, children }) => {
-    let Icon;
+const Item: FC<{ doing: boolean; done: boolean; error: boolean }> = ({
+    doing,
+    done,
+    error,
+    children,
+}) => {
+    let Icon = HiMinusSm;
 
     if (doing) Icon = HiArrowSmRight;
     if (done) Icon = HiCheck;
+    if (error) Icon = HiX;
 
     return (
         <ListItem>
@@ -153,9 +173,9 @@ const StepsView: FC<{
     metadata: any;
     tx: any;
 }> = ({ images, metadata, tx }) => {
-    const { doing: doingImages, done: doneImages } = images;
-    const { doing: doingMetadata, done: doneMetadata } = metadata;
-    const { doing: doingTx, done: doneTx, hash } = tx;
+    const { doing: doingImages, done: doneImages, error: errorImages } = images;
+    const { doing: doingMetadata, done: doneMetadata, error: errorMetadata } = metadata;
+    const { doing: doingTx, done: doneTx, error: errorTx, hash } = tx;
 
     return (
         <>
@@ -164,10 +184,10 @@ const StepsView: FC<{
                     Uploading resources
                 </Text>
                 <List mt="15px !important" spacing={3} w="full">
-                    <Item doing={doingImages} done={doneImages}>
+                    <Item doing={doingImages} done={doneImages} error={errorImages}>
                         Uploading images to IPFS
                     </Item>
-                    <Item doing={doingMetadata} done={doneMetadata}>
+                    <Item doing={doingMetadata} done={doneMetadata} error={errorMetadata}>
                         Uploading NFTs metadata
                     </Item>
                 </List>
@@ -177,7 +197,7 @@ const StepsView: FC<{
                     Finally
                 </Text>
                 <List spacing={3} w="full">
-                    <Item doing={doingTx} done={doneTx}>
+                    <Item doing={doingTx} done={doneTx} error={errorTx}>
                         Transaction sign
                         {hash && (
                             <Link
@@ -196,78 +216,104 @@ const StepsView: FC<{
     );
 };
 
-export const MintModal: FC<any> = ({ onMintStart, onMintEnd, files, attrs }) => {
-    const [status, setStatus] = useState('');
+const DisclaimerView: FC<any> = ({ files, onMintConfirm }) => {
+    const { address } = useAccount();
+
+    return (
+        <>
+            <ModalBody>
+                <VStack>
+                    <Text>
+                        {files.length} images will integrate the collection. This might take a few
+                        minutes. You will be required to sign a transaction as the last operation
+                        with a network fee. Please, do not close the tab once confirmed.
+                    </Text>
+                    <Code mt="2" p="1">
+                        {address}
+                    </Code>
+                </VStack>
+            </ModalBody>
+            <ModalFooter>
+                <Button onClick={onMintConfirm}>Confirm</Button>
+            </ModalFooter>
+        </>
+    );
+};
+
+const ProgressView: FC<any> = ({ files, attrs, onMintEnd }) => {
+    const [error, setError] = useState('');
 
     const { images, metadata, publish } = usePublish(files, attrs);
 
     const { go: push, done: doneUpload, doing: doingUpload, data: cid } = useJob(publish);
 
-    const { writeAsync, done: doneTx, txHash } = useContract(cid, files.length);
+    const { writeAsync, status: statusTx, txHash } = useContract(cid, files.length);
 
+    const errorTx = statusTx === 'error' || error !== '';
+    const doneTx = statusTx === 'success' || errorTx;
     const doingTx = doneUpload && !doneTx;
 
     const tx = {
-        doing: doingTx,
+        error: errorTx,
         done: doneTx,
+        doing: doingTx,
         hash: txHash,
     };
 
-    const { address } = useAccount();
-
-    const doing = (doingUpload || doingTx) && status === '';
-    const done = (doneUpload || doneTx) && status !== '';
-
-    const onMintConfirm = async () => {
-        if (done) {
-            onMintEnd();
-
-            return;
-        }
-
-        onMintStart();
-
-        await push(files, attrs);
-    };
+    const doing = doingUpload || doingTx;
+    const done = doneUpload && doneTx;
 
     useEffect(() => {
-        if (doneUpload && writeAsync) {
-            writeAsync()
-                .then(() => setStatus('Collection uploaded successfully.'))
-                .catch((error) =>
-                    setStatus('Failed: Please, check the transaction and try again.'),
-                );
+        push(files, attrs);
+    }, []);
+
+    useEffect(() => {
+        if (doingTx && writeAsync) {
+            writeAsync().catch((error) => setError(`Please, try again: ${error.message}`));
         }
     }, [writeAsync]);
+
+    useEffect(() => {
+        if (statusTx === 'error') setError('Please, check the transaction and try again');
+    }, [statusTx]);
 
     return (
         <>
             <ModalBody>
-                {(doing || done) && (
-                    <>
-                        <StepsView images={images} metadata={metadata} tx={tx} />
-                        {status && <Text mt="5">{status}</Text>}
-                    </>
-                )}
-                {!(doing || done) && (
-                    <VStack>
-                        <Text>
-                            {files.length} images will integrate the collection. This might take a
-                            few minutes. You will be required to sign a transaction as the last
-                            operation with a network fee. Please, do not close the tab once
-                            confirmed.
-                        </Text>
-                        <Text mt="2">{address}</Text>
-                    </VStack>
-                )}
+                <StepsView images={images} metadata={metadata} tx={tx} />
+                {done && <Text mt="5">{error || 'Collection uploaded successfully'}</Text>}
             </ModalBody>
             <ModalFooter>
-                <Button isLoading={doing} loadingText="Loading" onClick={onMintConfirm}>
-                    {done ? 'Done' : 'Confirm'}
+                <Button isLoading={doing} loadingText="Loading" onClick={onMintEnd}>
+                    Done
                 </Button>
             </ModalFooter>
         </>
     );
+};
+
+export const MintModal: FC<any> = ({ onMintStart, onMintEnd, files, attrs }) => {
+    // TODO: probar supabase pushear la data a nftstorage
+    // TODO: factorizar en un hook
+    // TODO: i18n
+    // TODO: config metadata
+    // TODO: show link a collection
+
+    const { page, setPage } = usePage({ pages: ['disclaimer', 'progress'] });
+
+    const onMintConfirm = async () => {
+        onMintStart();
+
+        setPage('progress');
+    };
+
+    if (page === 'disclaimer')
+        return <DisclaimerView files={files} onMintConfirm={onMintConfirm} />;
+
+    if (page === 'progress')
+        return <ProgressView attrs={attrs} files={files} onMintEnd={onMintEnd} />;
+
+    return <></>;
 };
 
 export default MintModal;
