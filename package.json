@@ -5,11 +5,11 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d dist",
         "preview": "vite preview",
         "test": "vitest run",
-        "coverage": "vitest run --coverage",
-        "predeploy": "npm run build",
-        "deploy": "gh-pages -d dist"
+        "coverage": "vitest run --coverage"
     },
     "dependencies": {
         "@chakra-ui/react": "^1.8.8",

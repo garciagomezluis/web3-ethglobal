@@ -21,6 +21,7 @@ import { useLayers } from './LayersContext';
 import Layer from './components/Layer';
 import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
+import { version } from '../package.json';
 
 const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
     const { combineLayers, createLayer, reset, dirty } = useLayers();
@@ -56,6 +57,7 @@ function App() {
     } = useDisclosure();
 
     useEffect(() => {
+        console.log(version);
         reset();
     }, []);
 
