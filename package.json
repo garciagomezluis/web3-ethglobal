@@ -1,6 +1,6 @@
 {
     "name": "layeralize",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "homepage": "https://garciagomezluis.github.io/web3-ethglobal",
     "scripts": {
         "dev": "vite",
