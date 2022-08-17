@@ -9,7 +9,7 @@ import {
     useDisclosure,
 } from '@chakra-ui/react';
 
-import { ConnectButton } from './prueba';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 import { AiFillPlusCircle } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
