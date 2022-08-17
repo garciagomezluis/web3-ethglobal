@@ -1,8 +1,9 @@
 // eslint-disable-next-line import/no-unresolved
 import '@rainbow-me/rainbowkit/styles.css';
 
-import React, { FC } from 'react';
 import ReactDOM from 'react-dom';
+import React, { FC } from 'react';
+
 import { ChakraProvider, ColorModeScript, useColorModeValue } from '@chakra-ui/react';
 
 import App from './App';
