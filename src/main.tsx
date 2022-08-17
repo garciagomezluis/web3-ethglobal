@@ -1,9 +1,9 @@
 // eslint-disable-next-line import/no-unresolved
 import '@rainbow-me/rainbowkit/styles.css';
 
-import React from 'react';
+import React, { FC } from 'react';
 import ReactDOM from 'react-dom';
-import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript, useColorModeValue } from '@chakra-ui/react';
 
 import App from './App';
 import LayersProvider from './LayersContext';
@@ -11,7 +11,12 @@ import { ModalProvider } from './components/Modal';
 import theme from './theme';
 
 import { publicProvider } from 'wagmi/providers/public';
-import { RainbowKitProvider, getDefaultWallets, lightTheme } from '@rainbow-me/rainbowkit';
+import {
+    RainbowKitProvider,
+    darkTheme,
+    getDefaultWallets,
+    lightTheme,
+} from '@rainbow-me/rainbowkit';
 import { WagmiConfig, chain, configureChains, createClient } from 'wagmi';
 
 const { chains, provider } = configureChains([chain.polygonMumbai], [publicProvider()]);
@@ -27,25 +32,35 @@ const wagmiClient = createClient({
     provider,
 });
 
+const Web3Provider: FC = ({ children }) => {
+    const rainbowTheme = useColorModeValue(lightTheme, darkTheme);
+
+    return (
+        <WagmiConfig client={wagmiClient}>
+            <RainbowKitProvider
+                chains={chains}
+                theme={rainbowTheme({
+                    accentColor: '#d53f8c',
+                    borderRadius: 'medium',
+                })}
+            >
+                {children}
+            </RainbowKitProvider>
+        </WagmiConfig>
+    );
+};
+
 ReactDOM.render(
     <React.StrictMode>
         <ChakraProvider theme={theme}>
-            <WagmiConfig client={wagmiClient}>
-                <RainbowKitProvider
-                    chains={chains}
-                    theme={lightTheme({
-                        accentColor: '#d53f8c',
-                        borderRadius: 'medium',
-                    })}
-                >
-                    <LayersProvider>
-                        <ModalProvider>
-                            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-                            <App />
-                        </ModalProvider>
-                    </LayersProvider>
-                </RainbowKitProvider>
-            </WagmiConfig>
+            <Web3Provider>
+                <LayersProvider>
+                    <ModalProvider>
+                        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+                        <App />
+                    </ModalProvider>
+                </LayersProvider>
+            </Web3Provider>
         </ChakraProvider>
     </React.StrictMode>,
     document.getElementById('root'),

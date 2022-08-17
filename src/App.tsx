@@ -6,6 +6,7 @@ import {
     IconButton,
     Spacer,
     useColorMode,
+    useColorModeValue,
     useDisclosure,
 } from '@chakra-ui/react';
 
@@ -74,7 +75,8 @@ function App() {
         reset();
     };
 
-    const { colorMode, toggleColorMode } = useColorMode();
+    const { toggleColorMode } = useColorMode();
+    const ModeIcon = useColorModeValue(FaMoon, FaSun);
 
     return (
         <>
@@ -91,7 +93,7 @@ function App() {
                     <Spacer />
                     <IconButton
                         aria-label="toggle color mode"
-                        icon={colorMode === 'light' ? <FaMoon /> : <FaSun />}
+                        icon={<ModeIcon />}
                         mx="10px !important"
                         onClick={toggleColorMode}
                     />
