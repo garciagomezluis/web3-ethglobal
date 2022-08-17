@@ -22,6 +22,8 @@ import Layer from './components/Layer';
 import useError from './hooks/error';
 import { version } from '../package.json';
 
+const PreviewDrawer = lazy(() => import('./components/PreviewDrawer'));
+
 const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
     const { combineLayers, createLayer, reset, dirty } = useLayers();
     const { showError } = useError({ showErrorTitle: 'Please check' });
@@ -67,11 +69,9 @@ function App() {
 
     const { colorMode, toggleColorMode } = useColorMode();
 
-    const PreviewDrawer = lazy(() => import('./components/PreviewDrawer'));
-
     return (
         <>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={isPreviewOpen ? <div>Loading...</div> : <></>}>
                 <PreviewDrawer
                     isOpen={isPreviewOpen}
                     onClose={onPreviewClose}
