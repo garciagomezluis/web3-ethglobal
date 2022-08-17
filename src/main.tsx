@@ -11,7 +11,7 @@ import { ModalProvider } from './components/Modal';
 import theme from './theme';
 
 import { publicProvider } from 'wagmi/providers/public';
-import { RainbowKitProvider, getDefaultWallets, lightTheme } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { WagmiConfig, chain, configureChains, createClient } from 'wagmi';
 
 const { chains, provider } = configureChains([chain.polygonMumbai], [publicProvider()]);
