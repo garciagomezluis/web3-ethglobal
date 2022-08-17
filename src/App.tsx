@@ -14,12 +14,11 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { AiFillPlusCircle } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
 
-import { FC, useEffect } from 'react';
+import { FC, Suspense, lazy, useEffect } from 'react';
 
 import { useLayers } from './LayersContext';
 
 import Layer from './components/Layer';
-import PreviewDrawer from './components/PreviewDrawer';
 import useError from './hooks/error';
 import { version } from '../package.json';
 
@@ -68,9 +67,17 @@ function App() {
 
     const { colorMode, toggleColorMode } = useColorMode();
 
+    const PreviewDrawer = lazy(() => import('./components/PreviewDrawer'));
+
     return (
         <>
-            <PreviewDrawer isOpen={isPreviewOpen} onClose={onPreviewClose} onMintEnd={onMintEnd} />
+            <Suspense fallback={<div>Loading...</div>}>
+                <PreviewDrawer
+                    isOpen={isPreviewOpen}
+                    onClose={onPreviewClose}
+                    onMintEnd={onMintEnd}
+                />
+            </Suspense>
 
             <Container maxW="container.xl" p="4">
                 <HStack>
