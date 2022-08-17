@@ -22,12 +22,12 @@ import { WagmiConfig, chain, configureChains, createClient } from 'wagmi';
 const { chains, provider } = configureChains([chain.polygonMumbai], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
-    appName: 'My RainbowKit App',
+    appName: 'Layeralize',
     chains,
 });
 
 const wagmiClient = createClient({
-    autoConnect: true,
+    autoConnect: false,
     connectors,
     provider,
 });
