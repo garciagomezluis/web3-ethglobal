@@ -1,5 +1,5 @@
-import { FC } from 'react';
 import { AiFillCloseCircle, AiOutlineArrowDown, AiOutlineArrowUp } from 'react-icons/ai';
+import { FC, Suspense, lazy } from 'react';
 
 import {
     AccordionButton,
@@ -19,7 +19,7 @@ import { LayerType } from '../utils';
 
 import { useLayers } from '../LayersContext';
 
-import Gallery from './Gallery';
+const Gallery = lazy(() => import('./Gallery'));
 
 const LayerName: FC<LayerType> = ({ id, name }) => {
     // TODO: validate empty layer name
@@ -86,7 +86,9 @@ export const Layer: FC<LayerProps> = ({ id, name }) => {
                     <LayerMenu id={id} />
                 </Box>
 
-                <Gallery id={id} />
+                <Suspense fallback={<div>loading...</div>}>
+                    <Gallery id={id} />
+                </Suspense>
             </AccordionPanel>
         </AccordionItem>
     );

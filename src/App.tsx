@@ -22,7 +22,8 @@ import Layer from './components/Layer';
 import useError from './hooks/error';
 import { version } from '../package.json';
 
-const PreviewDrawer = lazy(() => import('./components/PreviewDrawer'));
+const loadPreviewDrawer = () => import('./components/PreviewDrawer');
+const PreviewDrawer = lazy(loadPreviewDrawer);
 
 const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
     const { combineLayers, createLayer, reset, dirty } = useLayers();
@@ -43,7 +44,13 @@ const AppMenu: FC<{ onPreviewOpen: () => void }> = ({ onPreviewOpen }) => {
             <Button leftIcon={<AiFillPlusCircle />} onClick={createLayer}>
                 Add layer
             </Button>
-            <Button onClick={handleOpenPreview}>Preview</Button>
+            <Button
+                onClick={handleOpenPreview}
+                onFocus={loadPreviewDrawer}
+                onMouseEnter={loadPreviewDrawer}
+            >
+                Preview
+            </Button>
         </>
     );
 };
