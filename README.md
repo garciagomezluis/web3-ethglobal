@@ -1,4 +1,4 @@
-# Web3 ETHGlobal Hackathon
+# [Road To Web3 ETHGlobal Hackathon](https://web3.ethglobal.com/)
 
 > Some changes need to be done regarding Moralis for this to work properly. Please check the [Project Site on ETHGlobal for more info](https://ethglobal.com/showcase/layeralize-g76hi).
 
